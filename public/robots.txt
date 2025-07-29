@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /auth/
+Disallow: /dashboard
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://time.iamkaf.com/sitemap.xml
