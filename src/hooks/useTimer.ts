@@ -208,9 +208,7 @@ export function useTimer() {
       startTime: null,
       elapsedTime: 0,
       pausedDuration: 0,
-      pauseStartTime: null,
-      currentSessionName: '',
-      currentSessionTags: []
+      pauseStartTime: null
     }))
 
     // Clear localStorage when session ends

@@ -1,12 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { DashboardClient, RecentSessions } from '@/components/dashboard/dashboard-client'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Dashboard',
+  title: 'TIME',
   description: 'Your personal time tracking dashboard with session management and productivity insights.',
   robots: {
     index: false,
@@ -14,46 +10,18 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function DashboardPage() {
-  const supabase = await createClient()
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    redirect('/auth/login')
-  }
-
+export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <Link 
-                href="/"
-                className="text-2xl font-bold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-              >
-                TIME
-              </Link>
-              <span className="text-gray-400 dark:text-gray-600">→</span>
-              <span className="text-lg font-medium text-gray-700 dark:text-gray-300">Dashboard</span>
-            </div>
-            <p className="text-gray-600 dark:text-gray-400">
-              Welcome back, {user.user_metadata?.full_name || user.email}
-            </p>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <ThemeToggle />
-            <form action="/auth/logout" method="post">
-              <button
-                type="submit"
-                className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              >
-                Logout
-              </button>
-            </form>
-          </div>
+    <div className="p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            TIME
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Track your time and boost your productivity
+          </p>
         </div>
 
         <DashboardClient />

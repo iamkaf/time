@@ -73,8 +73,7 @@ export function Timer({ onSessionComplete }: TimerProps) {
     if (sessionData && onSessionComplete) {
       await onSessionComplete(sessionData)
     }
-    // Reset UI state after stopping
-    setTagInput('')
+    // Reset only non-session UI state after stopping
     setCustomStartTime(null)
     setShowStartTimePicker(false)
   }
@@ -285,6 +284,7 @@ export function Timer({ onSessionComplete }: TimerProps) {
               }
             }}
             placeholder="Add tags (e.g., work, project, learning)"
+            autoComplete="off"
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white text-sm"
           />
           
@@ -295,7 +295,10 @@ export function Timer({ onSessionComplete }: TimerProps) {
                 <button
                   key={tag}
                   type="button"
-                  onClick={() => handleSuggestionClick(tag)}
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                    handleSuggestionClick(tag)
+                  }}
                   className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600 cursor-pointer ${
                     index === selectedSuggestionIndex 
                       ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-900 dark:text-indigo-100' 

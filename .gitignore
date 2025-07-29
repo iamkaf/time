@@ -51,3 +51,4 @@ supabase/.temp/
 # logs
 *.log
 server.log
+server.pid
