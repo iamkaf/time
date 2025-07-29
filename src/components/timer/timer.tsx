@@ -163,7 +163,7 @@ export function Timer({ onSessionComplete }: TimerProps) {
           {!isRunning ? (
             <button
               onClick={handleStart}
-              className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+              className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors cursor-pointer"
             >
               <Play className="w-5 h-5" />
               <span>Start</span>
@@ -173,7 +173,7 @@ export function Timer({ onSessionComplete }: TimerProps) {
               {isPaused ? (
                 <button
                   onClick={handleResume}
-                  className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+                  className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors cursor-pointer"
                 >
                   <Play className="w-5 h-5" />
                   <span>Resume</span>
@@ -181,7 +181,7 @@ export function Timer({ onSessionComplete }: TimerProps) {
               ) : (
                 <button
                   onClick={handlePause}
-                  className="flex items-center space-x-2 px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
+                  className="flex items-center space-x-2 px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors cursor-pointer"
                 >
                   <Pause className="w-5 h-5" />
                   <span>Pause</span>
@@ -190,7 +190,7 @@ export function Timer({ onSessionComplete }: TimerProps) {
               
               <button
                 onClick={handleStop}
-                className="flex items-center space-x-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+                className="flex items-center space-x-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors cursor-pointer"
               >
                 <Square className="w-5 h-5" />
                 <span>Stop</span>
@@ -201,7 +201,7 @@ export function Timer({ onSessionComplete }: TimerProps) {
           <button
             onClick={handleReset}
             disabled={isRunning}
-            className="flex items-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
           >
             <RotateCcw className="w-5 h-5" />
             <span>Reset</span>
@@ -221,7 +221,7 @@ export function Timer({ onSessionComplete }: TimerProps) {
               type="button"
               onClick={() => setShowStartTimePicker(!showStartTimePicker)}
               disabled={isRunning}
-              className="inline-flex items-center px-2 py-1 text-xs font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/20 rounded-md hover:bg-indigo-200 dark:hover:bg-indigo-900/30 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center px-2 py-1 text-xs font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-900/20 rounded-md hover:bg-indigo-200 dark:hover:bg-indigo-900/30 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Clock className="w-3 h-3 mr-1" />
               {showStartTimePicker ? 'Use Now' : 'Set Custom'}
@@ -296,7 +296,7 @@ export function Timer({ onSessionComplete }: TimerProps) {
                   key={tag}
                   type="button"
                   onClick={() => handleSuggestionClick(tag)}
-                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600 ${
+                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600 cursor-pointer ${
                     index === selectedSuggestionIndex 
                       ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-900 dark:text-indigo-100' 
                       : 'text-gray-900 dark:text-gray-100'
@@ -320,7 +320,7 @@ export function Timer({ onSessionComplete }: TimerProps) {
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
-                    className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-indigo-400 hover:bg-indigo-200 hover:text-indigo-500 focus:outline-none focus:bg-indigo-500 focus:text-white"
+                    className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-indigo-400 hover:bg-indigo-200 hover:text-indigo-500 focus:outline-none focus:bg-indigo-500 focus:text-white cursor-pointer"
                   >
                     <span className="sr-only">Remove tag</span>
                     ×

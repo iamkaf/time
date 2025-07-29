@@ -11,6 +11,7 @@ export async function middleware(request: NextRequest) {
 
   // Auth condition checks
   const isAuthPage = request.nextUrl.pathname.startsWith('/auth')
+  const isAuthCallback = request.nextUrl.pathname === '/auth/callback'
   const isPublicPage = request.nextUrl.pathname === '/' || isAuthPage
 
   // Redirect logic
@@ -24,6 +25,17 @@ export async function middleware(request: NextRequest) {
     // Redirect authenticated users from home to dashboard
     const redirectUrl = new URL('/dashboard', request.url)
     return NextResponse.redirect(redirectUrl)
+  }
+
+  if (user && request.nextUrl.pathname === '/auth/login') {
+    // Redirect authenticated users from login to dashboard
+    const redirectUrl = new URL('/dashboard', request.url)
+    return NextResponse.redirect(redirectUrl)
+  }
+
+  // Don't interfere with the OAuth callback process
+  if (isAuthCallback) {
+    return response
   }
 
   return response
