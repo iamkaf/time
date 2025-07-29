@@ -3,6 +3,7 @@
 import { Timer } from '@/components/timer/timer'
 import { useSessions, useSessionStats } from '@/hooks/useSessions'
 import { format } from 'date-fns'
+import { formatDuration } from '@/lib/utils/time'
 
 export function DashboardClient() {
   const { createSession } = useSessions()
@@ -23,16 +24,6 @@ export function DashboardClient() {
     }
   }
 
-  const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`
-    }
-    return `${minutes}m`
-  }
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Timer Section */}
@@ -46,8 +37,8 @@ export function DashboardClient() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             Today
           </h3>
-          <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-            {stats ? formatDuration(stats.todaySeconds) : '0m'}
+          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            {formatDuration(stats?.todaySeconds || 0)}
           </div>
         </div>
         
@@ -55,8 +46,8 @@ export function DashboardClient() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             This Week
           </h3>
-          <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-            {stats ? formatDuration(stats.weekSeconds) : '0m'}
+          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            {formatDuration(stats?.weekSeconds || 0)}
           </div>
         </div>
         
@@ -64,7 +55,7 @@ export function DashboardClient() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             Total Sessions
           </h3>
-          <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
             {stats?.totalSessions || 0}
           </div>
         </div>
@@ -101,16 +92,6 @@ interface RecentSessionsProps {
 
 export function RecentSessions({ limit = 10 }: RecentSessionsProps) {
   const { sessions, isLoading } = useSessions()
-
-  const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`
-    }
-    return `${minutes}m`
-  }
 
   if (isLoading) {
     return (
@@ -149,7 +130,7 @@ export function RecentSessions({ limit = 10 }: RecentSessionsProps) {
                   {session.tags.slice(0, 3).map((tag: string) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200"
+                      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
                     >
                       {tag}
                     </span>
@@ -168,7 +149,7 @@ export function RecentSessions({ limit = 10 }: RecentSessionsProps) {
           </div>
           <div className="text-right">
             <div className="font-semibold text-gray-900 dark:text-white">
-              {session.duration_seconds ? formatDuration(session.duration_seconds) : '0m'}
+              {formatDuration(session.duration_seconds || 0)}
             </div>
           </div>
         </div>

@@ -39,9 +39,15 @@ function loadTimerState(): Partial<TimerState> {
 
     const parsedState: StoredTimerState = JSON.parse(stored)
     
-    // Only restore active sessions (not stopped sessions)
+    // Always restore session name and tags, even for stopped sessions
+    const baseState = {
+      currentSessionName: parsedState.currentSessionName || '',
+      currentSessionTags: parsedState.currentSessionTags || []
+    }
+    
+    // Only restore timer state for active sessions
     if (!parsedState.isRunning) {
-      return {}
+      return baseState
     }
 
     // Validate the stored state
@@ -70,14 +76,13 @@ function loadTimerState(): Partial<TimerState> {
     const elapsedTime = Math.floor((now.getTime() - startTime.getTime() - currentPausedDuration * 1000) / 1000)
 
     return {
+      ...baseState,
       isRunning: parsedState.isRunning,
       isPaused: parsedState.isPaused,
       startTime,
       elapsedTime: Math.max(0, elapsedTime),
       pausedDuration: parsedState.pausedDuration,
-      pauseStartTime,
-      currentSessionName: parsedState.currentSessionName,
-      currentSessionTags: parsedState.currentSessionTags
+      pauseStartTime
     }
   } catch (error) {
     console.warn('Failed to load timer state from localStorage:', error)
@@ -88,7 +93,21 @@ function loadTimerState(): Partial<TimerState> {
 
 function clearTimerState() {
   try {
-    localStorage.removeItem(TIMER_STORAGE_KEY)
+    const stored = localStorage.getItem(TIMER_STORAGE_KEY)
+    if (stored) {
+      const parsedState: StoredTimerState = JSON.parse(stored)
+      // Keep session name and tags, but clear timer state
+      const preservedState: StoredTimerState = {
+        isRunning: false,
+        isPaused: false,
+        startTime: null,
+        pausedDuration: 0,
+        pauseStartTime: null,
+        currentSessionName: parsedState.currentSessionName || '',
+        currentSessionTags: parsedState.currentSessionTags || []
+      }
+      localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(preservedState))
+    }
   } catch (error) {
     console.warn('Failed to clear timer state from localStorage:', error)
   }
@@ -227,18 +246,18 @@ export function useTimer() {
   }, [state.isRunning, state.startTime, state.isPaused, state.pauseStartTime, state.pausedDuration, state.currentSessionName, state.currentSessionTags, playSound])
 
   const resetTimer = useCallback(() => {
-    setState({
+    setState(prev => ({
+      ...prev,
       isRunning: false,
       isPaused: false,
       startTime: null,
       elapsedTime: 0,
       pausedDuration: 0,
-      pauseStartTime: null,
-      currentSessionName: '',
-      currentSessionTags: []
-    })
+      pauseStartTime: null
+      // Keep currentSessionName and currentSessionTags
+    }))
     
-    // Clear localStorage when resetting
+    // Clear timer state but preserve session fields
     clearTimerState()
   }, [])
 

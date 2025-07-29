@@ -31,12 +31,12 @@ export default function CTASection() {
       <button
         onClick={handleGetStarted}
         disabled={isAuthenticated === null}
-        className="px-8 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-[length:200%_100%] animate-gradient text-white font-semibold rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer"
+        className="px-8 py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 bg-[length:200%_100%] animate-gradient text-white font-semibold rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer"
       >
         <span className="relative z-10">
           {isAuthenticated === null ? 'Loading...' : isAuthenticated ? 'Go to Dashboard' : 'Get Started'}
         </span>
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-700 via-purple-700 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-700 via-teal-700 to-green-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </button>
       <a
         href="https://github.com/iamkaf/time"

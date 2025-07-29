@@ -6,6 +6,7 @@ import { Edit, Trash2, MoreVertical } from 'lucide-react'
 import { useSessions } from '@/hooks/useSessions'
 import { EditSessionModal } from './edit-session-modal'
 import { DeleteSessionModal } from './delete-session-modal'
+import { formatDuration } from '@/lib/utils/time'
 import type { Session } from '@/types/supabase'
 
 interface SessionsListProps {
@@ -18,15 +19,6 @@ export function SessionsList({ limit = 10 }: SessionsListProps) {
   const [deletingSession, setDeletingSession] = useState<Session | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null)
 
-  const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`
-    }
-    return `${minutes}m`
-  }
 
   const toggleDropdown = (sessionId: string) => {
     setDropdownOpen(dropdownOpen === sessionId ? null : sessionId)
@@ -95,7 +87,7 @@ export function SessionsList({ limit = 10 }: SessionsListProps) {
                     {session.tags.slice(0, 3).map((tag: string) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200"
+                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
                       >
                         {tag}
                       </span>
@@ -123,7 +115,7 @@ export function SessionsList({ limit = 10 }: SessionsListProps) {
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <div className="font-semibold text-gray-900 dark:text-white">
-                  {session.duration_seconds ? formatDuration(session.duration_seconds) : '0m'}
+                  {formatDuration(session.duration_seconds || 0)}
                 </div>
               </div>
               

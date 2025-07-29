@@ -49,7 +49,7 @@ export function SidebarLayout({ children, user }: SidebarLayoutProps) {
           <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
             <Link
               href="/dashboard"
-              className="text-xl font-bold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              className="text-xl font-bold text-gray-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
             >
               TIME
             </Link>
@@ -74,7 +74,7 @@ export function SidebarLayout({ children, user }: SidebarLayoutProps) {
                   href={item.href}
                   className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                     isActive
-                      ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'
+                      ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                   }`}
                   onClick={() => setSidebarOpen(false)}
@@ -102,7 +102,7 @@ export function SidebarLayout({ children, user }: SidebarLayoutProps) {
                     unoptimized
                   />
                 ) : (
-                  <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
                     <span className="text-white text-sm font-medium select-none">
                       {(user.user_metadata?.full_name || 'User').charAt(0).toUpperCase()}
                     </span>

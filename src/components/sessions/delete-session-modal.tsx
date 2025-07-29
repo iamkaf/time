@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { Trash2, AlertTriangle } from 'lucide-react'
 import { Modal } from '@/components/ui/modal'
 import { useSessions } from '@/hooks/useSessions'
+import { formatDuration } from '@/lib/utils/time'
 import type { Session } from '@/types/supabase'
 
 interface DeleteSessionModalProps {
@@ -37,15 +38,6 @@ export function DeleteSessionModal({ isOpen, onClose, session }: DeleteSessionMo
 
   if (!session) return null
 
-  const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`
-    }
-    return `${minutes}m`
-  }
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Delete Session" maxWidth="md">
@@ -84,7 +76,7 @@ export function DeleteSessionModal({ isOpen, onClose, session }: DeleteSessionMo
             <div className="flex justify-between items-start">
               <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Duration:</span>
               <span className="text-sm text-gray-900 dark:text-white">
-                {session.duration_seconds ? formatDuration(session.duration_seconds) : '0m'}
+                {formatDuration(session.duration_seconds || 0)}
               </span>
             </div>
             
@@ -102,7 +94,7 @@ export function DeleteSessionModal({ isOpen, onClose, session }: DeleteSessionMo
                   {session.tags.map((tag: string) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200"
+                      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
                     >
                       {tag}
                     </span>
@@ -118,7 +110,7 @@ export function DeleteSessionModal({ isOpen, onClose, session }: DeleteSessionMo
           <button
             type="button"
             onClick={handleClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
           >
             Cancel
           </button>

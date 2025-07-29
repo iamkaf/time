@@ -201,7 +201,7 @@ export default function ChangelogPage() {
               Changelog Format
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-3">
-              This changelog follows the <a href="https://keepachangelog.com/en/1.1.0/" target="_blank" rel="noopener noreferrer" className="text-indigo-600 dark:text-indigo-400 hover:underline">Keep a Changelog</a> format.
+              This changelog follows the <a href="https://keepachangelog.com/en/1.1.0/" target="_blank" rel="noopener noreferrer" className="text-emerald-600 dark:text-emerald-400 hover:underline">Keep a Changelog</a> format.
             </p>
             <div className="flex justify-center space-x-6 text-xs">
               <div className="flex items-center">
