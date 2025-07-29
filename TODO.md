@@ -1,9 +1,76 @@
-# TIME App - Production Ready Enhanced Time Tracker
+# TIME App - Multi-Page Application Development
 
-## Project Overview
-A fully featured web app for enhanced time session tracking with Discord authentication, using Next.js 15, Bun, and Supabase.
+## Project Status: Enhanced MVP Complete → Multi-Page Architecture
 
-## ✅ COMPLETED FEATURES
+The core time tracking functionality is production-ready. Now expanding to a full multi-page application with sidebar navigation while **preserving ALL existing dashboard features**.
+
+## 🚨 TODAY'S PRIORITY: Vertical Slice Implementation
+
+**GOAL: Ship a working vertical slice with ALL new pages navigable by END OF DAY.**
+
+**Approach: Speed over perfection. Get all pages created and navigable first, polish later.**
+
+### Vertical Slice Requirements (Bare Minimum Functionality)
+
+**Routing Structure:**
+- Root (/) is the landing page (stays as is)
+- Dashboard is already at /dashboard (no changes needed)
+- All authenticated pages under /dashboard/*
+- Routes: /dashboard, /dashboard/sessions, /dashboard/changelog, /dashboard/settings
+
+- [ ] **Sidebar Navigation**
+  - [ ] Simple vertical sidebar with links
+  - [ ] Active route highlighting
+  - [ ] Mobile responsive (hamburger toggle)
+  - [ ] Links: TIME, Sessions, Changelog, Settings
+
+- [ ] **TIME Page** (Current Dashboard)
+  - [ ] Dashboard already at /dashboard - no route changes needed
+  - [ ] Just wrap with sidebar layout
+  - [ ] No changes to dashboard functionality - already complete
+
+- [ ] **Sessions Page** (/dashboard/sessions)
+  - [ ] Basic page with title "Sessions"
+  - [ ] Simple tab switcher (Sessions | Details | Export)
+  - [ ] Sessions tab: List 10 most recent sessions (reuse existing component)
+  - [ ] Details tab: Placeholder text "Analytics coming soon"
+  - [ ] Export tab: Simple button "Download CSV" (can be non-functional)
+
+- [ ] **Changelog Page** (/dashboard/changelog)
+  - [ ] Static page with title "Changelog"
+  - [ ] One hardcoded entry showing "v0.1.0 - Initial Release"
+  - [ ] Basic styling with date and bullet points
+
+- [ ] **Settings Page** (/dashboard/settings)
+  - [ ] Page with title "Settings"
+  - [ ] Replicate existing theme toggle here
+  - [ ] Add placeholder sections for future settings
+
+### Definition of DONE for Today:
+1. ✅ User can navigate between all pages via sidebar
+2. ✅ Each page loads without errors
+3. ✅ Mobile responsive navigation works
+4. ✅ No regressions to existing functionality
+5. ✅ Deployed and accessible
+
+**After this vertical slice is complete, we'll iterate on each page to add full functionality.**
+
+### Timeline
+- **Start**: NOW
+- **End**: TODAY (End of Day)
+- **Focus**: Working navigation between all pages
+- **Non-goals**: Perfect styling, full functionality, complex features
+
+### Implementation Order
+1. Create sidebar component and new layout
+2. Create placeholder pages (Sessions, Changelog, Settings)
+3. Wire up navigation
+4. Add mobile responsiveness
+5. Test and ship
+
+---
+
+## ✅ COMPLETED FEATURES (Phase 1: Core MVP)
 
 ### Core Features
 - [x] Create TODO.md file to track progress
@@ -29,47 +96,123 @@ A fully featured web app for enhanced time session tracking with Discord authent
 - [x] Start time picker for manual session start time entry
 - [x] Enhanced session editing with timestamps
 - [x] All production warnings fixed
+- [x] Landing page improvements and auth flow fixes
 
-## 🎉 CURRENT STATUS: PRODUCTION READY
+## 📋 PHASE 2: Full Feature Implementation (After Vertical Slice)
 
-**This is now a fully functional enhanced TIME tracking app ready for production use!**
+### CRITICAL REQUIREMENT
+**The existing dashboard with ALL its features (timer, stats, recent sessions, real-time updates) MUST remain completely intact and will become the "TIME" page in the navigation.**
 
-### Complete Feature Set
-- **Authentication**: Discord OAuth login/logout flow
-- **Enhanced Timer**: Start/stop/pause/resume with sound effects
-- **Session Persistence**: Resume active timers after page refresh
-- **Smart Session Management**: Auto-save with names and tags
-- **Tag Autocomplete**: Intelligent suggestions based on session history
-- **Custom Start Times**: Manual entry picker for backdated sessions
-- **Enhanced Session Editing**: Full CRUD with timestamp editing
-- **Real-time Dashboard**: Live stats (today, week, total sessions)
-- **Recent Sessions**: Display of latest sessions with formatting
-- **Theme Support**: Light/dark mode with SSR-safe implementation
-- **Sound Effects**: Audio feedback for all user actions
+### Navigation & Layout Enhancement
+- [ ] Create sidebar navigation component
+  - [ ] Design responsive sidebar with collapse functionality
+  - [ ] Add navigation items: TIME, Sessions, Changelog, Settings
+  - [ ] Implement active route highlighting
+  - [ ] Add user info and logout in sidebar
+  - [ ] Mobile hamburger menu toggle
+- [ ] Create new app layout with persistent sidebar
+  - [ ] Wrap existing dashboard WITHOUT modifications
+  - [ ] Ensure timer state persists during navigation
+  - [ ] Maintain responsive design across all breakpoints
 
-## 🚀 Production Capabilities
+### TIME Page (Current Dashboard)
+- [ ] Move dashboard to /time route (or keep at / as default)
+- [ ] Preserve ALL existing functionality:
+  - [ ] Timer with start/stop/pause/resume
+  - [ ] Sound effects
+  - [ ] Real-time stats (today, week, total)
+  - [ ] Recent sessions list
+  - [ ] Session editing
+  - [ ] Tag autocomplete
+  - [ ] Active session persistence
 
-1. ✅ **Complete Setup** - All configuration and deployment ready
-2. ✅ **Database Optimized** - Full schema with RLS policies
-3. ✅ **Authentication System** - Secure Discord OAuth integration
-4. ✅ **Advanced Timer** - Pause/resume with state persistence
-5. ✅ **Smart Session Management** - Enhanced editing and autocomplete
-6. ✅ **Real-time Updates** - Live dashboard with Supabase Realtime
-7. ✅ **Professional UI** - Polished theme system and responsive design
-8. ✅ **Audio Feedback** - Complete sound system integration
-9. ✅ **Production Quality** - All warnings resolved, optimized performance
+### Sessions Page
+- [ ] Create /sessions route with sub-navigation
+- [ ] Implement view switcher (Sessions | Details | Export)
+- [ ] **Sessions View**:
+  - [ ] Full paginated session history
+  - [ ] Advanced filtering (date range, tags, duration)
+  - [ ] Sort by date, duration, name
+  - [ ] Bulk actions (delete multiple)
+  - [ ] Search functionality
+- [ ] **Details View**:
+  - [ ] Time distribution charts (daily, weekly, monthly)
+  - [ ] Tag analytics and breakdowns
+  - [ ] Productivity trends
+  - [ ] Session duration distribution
+  - [ ] Peak activity hours heatmap
+- [ ] **Export View**:
+  - [ ] Date range selector
+  - [ ] Format options (CSV, JSON, PDF)
+  - [ ] Field selection for export
+  - [ ] Preview before download
+  - [ ] Export history
 
-## 📈 Future Enhancement Opportunities
+### Changelog Page
+- [ ] Create /changelog route
+- [ ] Design changelog entry component
+- [ ] Support for version numbers
+- [ ] Markdown rendering for entries
+- [ ] Categories (Added, Changed, Fixed, Removed)
+- [ ] Release date display
+- [ ] Load changelog data from JSON or Markdown
 
-### Potential Additions (Optional)
-- [ ] Dedicated history page with advanced filtering
-- [ ] Enhanced analytics page with charts and visualizations
-- [ ] Session export functionality (CSV/JSON)
-- [ ] Session templates/presets for common activities
-- [ ] Keyboard shortcuts for power users
-- [ ] Mobile app companion
-- [ ] Team collaboration features
-- [ ] API endpoints for integrations
+### Settings Page
+- [ ] Create /settings route with sections
+- [ ] **General Settings**:
+  - [ ] Default session name template
+  - [ ] Default tags
+  - [ ] Time format preferences (12/24 hour)
+  - [ ] Start of week preference
+- [ ] **Appearance**:
+  - [ ] Theme toggle (move from current location)
+  - [ ] Accent color selection
+  - [ ] Font size preferences
+- [ ] **Sound Settings**:
+  - [ ] Master volume control
+  - [ ] Individual sound toggles
+  - [ ] Custom sound upload (future)
+- [ ] **Account**:
+  - [ ] Profile information
+  - [ ] Connected accounts
+  - [ ] Data export (all user data)
+  - [ ] Account deletion
+
+### Technical Implementation
+- [ ] Update routing structure
+- [ ] Implement route guards for authenticated pages
+- [ ] Create shared layout components
+- [ ] Ensure timer state management works across routes
+- [ ] Add loading states for route transitions
+- [ ] Implement breadcrumb navigation where needed
+- [ ] Add keyboard navigation support
+
+## 🚀 Future Enhancements (Post-Navigation)
+
+### API & Integrations
+- [ ] REST API endpoints for external integrations
+- [ ] Webhook support for session events
+- [ ] Calendar integration (Google, Outlook)
+- [ ] Time tracking browser extension
+- [ ] Mobile app considerations
+
+### Advanced Features
+- [ ] Team/organization support
+- [ ] Project-based time tracking
+- [ ] Invoicing and billing features
+- [ ] AI-powered insights and recommendations
+- [ ] Pomodoro timer mode
+- [ ] Goal setting and tracking
+- [ ] Session templates/presets
+- [ ] Keyboard shortcuts throughout app
+- [ ] Command palette (cmd+k)
+
+### Performance & Polish
+- [ ] Implement virtual scrolling for large lists
+- [ ] Add service worker for offline support
+- [ ] Progressive Web App (PWA) features
+- [ ] Automated backups
+- [ ] Data sync conflict resolution
 
 ## Technical Stack
 - **Runtime**: Bun
@@ -81,31 +224,11 @@ A fully featured web app for enhanced time session tracking with Discord authent
 - **Date/Time**: date-fns, React Aria DatePicker
 - **Theme**: next-themes (SSR-safe)
 - **Audio**: Howler.js
+- **Charts**: (TBD - Recharts, Chart.js, or D3.js)
 
-## Key Features
-1. Discord OAuth login
-2. Start/stop timer with session tracking
-3. Name and tag sessions
-4. View session history
-5. Summary by tags
-6. Light/dark theme
-7. Sound effects for actions
-
-## Database Schema
-```sql
-sessions table:
-- id (UUID)
-- user_id (UUID, FK to auth.users)
-- name (TEXT)
-- tags (TEXT[])
-- start_timestamp (TIMESTAMPTZ)
-- end_timestamp (TIMESTAMPTZ)
-- duration_seconds (INTEGER)
-- created_at (TIMESTAMPTZ)
-```
-
-## Notes
-- All components with interactivity must use "use client" directive
-- Theme toggle must handle SSR hydration properly
-- Sound effects should only play on client-side
-- Use Server Components by default for better performance
+## Development Principles
+1. **Preserve existing functionality** - No features should be removed
+2. **Progressive enhancement** - Add new features without breaking existing ones
+3. **Consistent UX** - Navigation should feel seamless
+4. **Performance first** - Lazy load heavy components
+5. **Accessibility** - Full keyboard navigation and screen reader support
