@@ -51,9 +51,9 @@
 ### Settings Page Enhancements
 - [x] **General Settings**:
   - [x] Default session name template
-  - [ ] Default tags
-  - [ ] Time format preferences (12/24 hour)
-  - [ ] Start of week preference
+  - [x] Default tags
+  - [x] Time format preferences (12/24 hour)
+  - [x] Start of week preference
 - [ ] **Appearance**:
   - [ ] Accent color selection
   - [ ] Font size preferences
