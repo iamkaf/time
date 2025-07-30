@@ -6,9 +6,13 @@
 - [x] **Sessions View**:
   - [x] Full paginated session history
   - [x] Advanced filtering (date range, tags, duration)
-  - [x] Sort by date, duration, name
-  - [x] Bulk actions (delete multiple)
-  - [x] Search functionality
+  - [x] Sort by date, duration, name with URL state persistence
+  - [x] Bulk actions (delete multiple sessions)
+  - [x] Search functionality with debouncing
+  - [x] Tag-based filtering with multi-select interface
+  - [x] Generic TypeScript URL state management
+  - [x] Keyboard shortcuts for multi-selection
+  - [x] Clear filters functionality
 - [x] **Analytics View**:
   - [x] Analytics infrastructure and data processing
   - [x] Core analytics hook with date filtering and view periods  
@@ -34,6 +38,7 @@
   - [x] Export history tracking
   - [x] Additional formats (JSON, PDF)
   - [x] Format selection UI with progressive loading
+  - [x] Test JSON and PDF export functionality
 
 ### Changelog Page Enhancements
 - [ ] Design changelog entry component
@@ -94,6 +99,13 @@
   - [x] Consistent scrollbar styling across browsers
   - [x] Theme-aware scrollbar colors
   - [x] Reserved scrollbar gutter for stable layouts
+- [x] **UI/UX Enhancements**:
+  - [x] Search debouncing to prevent excessive API calls
+  - [x] Sort button state synchronization with URL
+  - [x] Tag filtering with expandable interface
+  - [x] Immediate local feedback for search input
+  - [x] Clear all filters functionality
+  - [x] Bulk selection with keyboard shortcuts
 
 ## Technical Stack
 - **Runtime**: Bun
