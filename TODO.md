@@ -6,9 +6,9 @@
 - [ ] **Sessions View**:
   - [ ] Full paginated session history
   - [ ] Advanced filtering (date range, tags, duration)
-  - [ ] Sort by date, duration, name
+  - [x] Sort by date, duration, name
   - [ ] Bulk actions (delete multiple)
-  - [ ] Search functionality
+  - [x] Search functionality
 - [ ] **Details View**:
   - [ ] Time distribution charts (daily, weekly, monthly)
   - [ ] Tag analytics and breakdowns
@@ -31,17 +31,17 @@
 - [ ] Load changelog data from JSON or Markdown
 
 ### Settings Page Enhancements
-- [ ] **General Settings**:
-  - [ ] Default session name template
+- [x] **General Settings**:
+  - [x] Default session name template
   - [ ] Default tags
   - [ ] Time format preferences (12/24 hour)
   - [ ] Start of week preference
 - [ ] **Appearance**:
   - [ ] Accent color selection
   - [ ] Font size preferences
-- [ ] **Sound Settings**:
-  - [ ] Master volume control
-  - [ ] Individual sound toggles
+- [x] **Sound Settings**:
+  - [x] Master volume control
+  - [x] Individual sound toggles
   - [ ] Custom sound upload (future)
 - [ ] **Account**:
   - [ ] Profile information
