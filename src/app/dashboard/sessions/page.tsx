@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { SessionsList } from '@/components/sessions/sessions-list'
+import { EnhancedSessionsList } from '@/components/sessions/enhanced-sessions-list'
 
 const tabs = [
   { id: 'sessions', name: 'Sessions' },
@@ -57,7 +57,7 @@ export default function SessionsPage() {
                 </p>
               </div>
               <div className="p-6">
-                <SessionsList />
+                <EnhancedSessionsList />
               </div>
             </div>
           )}
