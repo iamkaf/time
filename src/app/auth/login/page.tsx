@@ -24,11 +24,13 @@ export default function LoginPage() {
 
   const handleDiscordLogin = async () => {
     setIsLoading(true)
+    const redirectUrl = `${getSiteUrl()}/auth/callback`
+    console.log('Discord OAuth redirect URL:', redirectUrl)
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
         options: {
-          redirectTo: `${getSiteUrl()}/auth/callback`
+          redirectTo: redirectUrl
         }
       })
       
