@@ -32,6 +32,82 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Prevent layout shift from scrollbars on Windows */
+html {
+  /* Modern approach: always reserve space for scrollbars */
+  scrollbar-gutter: stable;
+  /* Fallback for older browsers: always show vertical scrollbar */
+  overflow-y: scroll;
+}
+
+/* Consistent scrollbar behavior for all scrollable containers */
+* {
+  /* Ensure consistent scrollbar behavior */
+  scrollbar-gutter: stable;
+}
+
+/* Style scrollbars for better consistency */
+::-webkit-scrollbar {
+  width: 17px; /* Standard Windows scrollbar width */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.7);
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(155, 155, 155, 0.9);
+}
+
+/* Dark mode scrollbar styling */
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Firefox scrollbar styling */
+html {
+  scrollbar-width: auto;
+  scrollbar-color: rgba(155, 155, 155, 0.7) transparent;
+}
+
+.dark html {
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* Specific scrollable component optimizations */
+.scrollable-table,
+.overflow-auto,
+.overflow-y-auto,
+.overflow-x-auto {
+  /* Ensure consistent scrollbar gutter for scrollable containers */
+  scrollbar-gutter: stable;
+}
+
+/* Table containers - prevent horizontal layout shifts */
+.table-container {
+  /* Reserve space for potential vertical scrollbar */
+  scrollbar-gutter: stable;
+  /* Smooth scrolling for better UX */
+  scroll-behavior: smooth;
+}
+
+/* Main content area - prevent layout shifts */
+main {
+  /* Ensure main content area reserves scrollbar space */
+  scrollbar-gutter: stable;
+}
+
 /* Custom Animations */
 @keyframes float {
   0%, 100% {

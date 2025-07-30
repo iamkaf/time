@@ -3,9 +3,9 @@
 ## 🚀 Future Development Roadmap
 
 ### Sessions Page Enhancements
-- [ ] **Sessions View**:
-  - [ ] Full paginated session history
-  - [ ] Advanced filtering (date range, tags, duration)
+- [x] **Sessions View**:
+  - [x] Full paginated session history
+  - [x] Advanced filtering (date range, tags, duration)
   - [x] Sort by date, duration, name
   - [ ] Bulk actions (delete multiple)
   - [x] Search functionality
@@ -15,12 +15,13 @@
   - [ ] Productivity trends
   - [ ] Session duration distribution
   - [ ] Peak activity hours heatmap
-- [ ] **Export View**:
-  - [ ] Date range selector
-  - [ ] Format options (CSV, JSON, PDF)
-  - [ ] Field selection for export
-  - [ ] Preview before download
-  - [ ] Export history
+- [x] **Export View**:
+  - [x] Date range selector with quick presets
+  - [x] CSV format with professional metadata headers
+  - [x] Field selection for export with presets
+  - [x] Live preview before download
+  - [ ] Export history tracking
+  - [ ] Additional formats (JSON, PDF)
 
 ### Changelog Page Enhancements
 - [ ] Design changelog entry component
@@ -66,6 +67,9 @@
 - [ ] Session templates/presets
 - [ ] Keyboard shortcuts throughout app
 - [ ] Command palette (cmd+k)
+- [x] **Development Environment Tagging**:
+  - [x] Automatic "_Development" tag for non-production sessions
+  - [x] Environment-aware session categorization
 
 ### Performance & Polish
 - [ ] Implement virtual scrolling for large lists
@@ -73,6 +77,11 @@
 - [ ] Progressive Web App (PWA) features
 - [ ] Automated backups
 - [ ] Data sync conflict resolution
+- [x] **Cross-platform Scrollbar Consistency**:
+  - [x] Prevent Windows scrollbar layout shifts
+  - [x] Consistent scrollbar styling across browsers
+  - [x] Theme-aware scrollbar colors
+  - [x] Reserved scrollbar gutter for stable layouts
 
 ## Technical Stack
 - **Runtime**: Bun

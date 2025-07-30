@@ -89,7 +89,7 @@ export function ExportPreview({ sessions, enabledFields, isLoading = false }: Ex
         )}
       </div>
 
-      <div className="border border-gray-200 dark:border-gray-700 rounded-md">
+      <div className="border border-gray-200 dark:border-gray-700 rounded-md table-container">
         {!hasData ? (
           <div className="p-6 text-center">
             <div className="text-gray-500 dark:text-gray-400">
