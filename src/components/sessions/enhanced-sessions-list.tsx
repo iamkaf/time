@@ -4,9 +4,11 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { format } from 'date-fns'
 import { Edit, Trash2, MoreVertical, Search, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Square, X } from 'lucide-react'
 import { useSessions } from '@/hooks/useSessions'
+import { useUrlState } from '@/hooks/useUrlState'
 import { EditSessionModal } from './edit-session-modal'
 import { DeleteSessionModal } from './delete-session-modal'
 import { BulkDeleteSessionsModal } from './bulk-delete-modal'
+import { TagFilter } from './tag-filter'
 import { Checkbox } from '@/components/ui/checkbox'
 import { formatDuration } from '@/lib/utils/time'
 import type { Session } from '@/types/supabase'
@@ -16,17 +18,52 @@ type SortDirection = 'asc' | 'desc'
 
 const ITEMS_PER_PAGE = 20
 
+interface SessionsUrlParams {
+  tab: string
+  search: string
+  tags: string[]
+  sort: string
+  order: string
+  page: number
+  from?: Date
+  to?: Date
+}
+
 export function EnhancedSessionsList() {
   const { sessions, isLoading } = useSessions()
   const [editingSession, setEditingSession] = useState<Session | null>(null)
   const [deletingSession, setDeletingSession] = useState<Session | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null)
   
-  // Search and filtering state
-  const [searchQuery, setSearchQuery] = useState('')
-  const [sortField, setSortField] = useState<SortField>('date')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
-  const [currentPage, setCurrentPage] = useState(1)
+  // URL state management
+  const { parameters, setParameters } = useUrlState<SessionsUrlParams>()
+  const searchQuery = parameters.search || ''
+  const selectedTags = useMemo(() => parameters.tags || [], [parameters.tags])
+  const sortField = parameters.sort || 'start_timestamp'
+  const sortDirection = (parameters.order as SortDirection) || 'desc'
+  const currentPage = parameters.page || 1
+
+  // Local search state for immediate UI feedback
+  const [searchValue, setSearchValue] = useState(searchQuery)
+  
+  // Sync local search state when URL state changes (e.g., from clear filters or navigation)
+  useEffect(() => {
+    setSearchValue(searchQuery)
+  }, [searchQuery])
+
+  // Debounce search URL updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchValue.trim() !== searchQuery) {
+        setParameters({
+          search: searchValue.trim() || undefined,
+          page: 1
+        })
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchValue, searchQuery, setParameters])
   
   // Selection state
   const [isSelectionMode, setIsSelectionMode] = useState(false)
@@ -38,11 +75,11 @@ export function EnhancedSessionsList() {
   const filteredAndSortedSessions = useMemo(() => {
     let filtered = sessions
 
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim()
+    // Apply search filter (use local searchValue for immediate feedback)
+    if (searchValue.trim()) {
+      const query = searchValue.toLowerCase().trim()
       
-      filtered = sessions.filter(session => {
+      filtered = filtered.filter(session => {
         // Use display name (including "Untitled Session" fallback) for search
         const displayName = (session.name || 'Untitled Session').toLowerCase()
         
@@ -62,17 +99,36 @@ export function EnhancedSessionsList() {
       })
     }
 
+    // Apply tag filter
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter(session => {
+        if (!session.tags || !Array.isArray(session.tags)) return false
+        
+        // OR logic: session must have at least one of the selected tags
+        return selectedTags.some(selectedTag => 
+          session.tags!.includes(selectedTag)
+        )
+      })
+    }
+
     // Apply sorting
     const sorted = [...filtered].sort((a, b) => {
       let aValue: string | number
       let bValue: string | number
 
-      switch (sortField) {
+      // Map sort field names to match URL state
+      const mappedSortField = sortField === 'start_timestamp' ? 'date' : 
+                             sortField === 'duration_seconds' ? 'duration' : 
+                             sortField
+
+      switch (mappedSortField) {
         case 'date':
+        case 'start_timestamp':
           aValue = new Date(a.start_timestamp).getTime()
           bValue = new Date(b.start_timestamp).getTime()
           break
         case 'duration':
+        case 'duration_seconds':
           aValue = a.duration_seconds || 0
           bValue = b.duration_seconds || 0
           break
@@ -90,7 +146,7 @@ export function EnhancedSessionsList() {
     })
 
     return sorted
-  }, [sessions, searchQuery, sortField, sortDirection])
+  }, [sessions, searchValue, selectedTags, sortField, sortDirection])
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredAndSortedSessions.length / ITEMS_PER_PAGE)
@@ -98,20 +154,41 @@ export function EnhancedSessionsList() {
   const endIndex = startIndex + ITEMS_PER_PAGE
   const currentSessions = filteredAndSortedSessions.slice(startIndex, endIndex)
 
-  // Reset to first page when search or sort changes
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value)
-    setCurrentPage(1)
+  // Update URL state handlers
+  const handleTagsChange = (tags: string[]) => {
+    setParameters({
+      tags: tags.length > 0 ? tags : undefined,
+      page: 1
+    })
   }
 
   const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    // Map UI field names to URL parameter names
+    const urlField = field === 'date' ? 'start_timestamp' : 
+                    field === 'duration' ? 'duration_seconds' : 
+                    field
+    
+    if (sortField === urlField || 
+        (sortField === 'start_timestamp' && field === 'date') ||
+        (sortField === 'duration_seconds' && field === 'duration')) {
+      // Same field clicked - toggle order, but always set sort explicitly
+      setParameters({
+        sort: urlField,
+        order: sortDirection === 'asc' ? 'desc' : 'asc',
+        page: 1
+      })
     } else {
-      setSortField(field)
-      setSortDirection('desc')
+      // Different field clicked - set new sort and default to desc
+      setParameters({
+        sort: urlField,
+        order: 'desc',
+        page: 1
+      })
     }
-    setCurrentPage(1)
+  }
+
+  const handlePageChange = (page: number) => {
+    setParameters({ page })
   }
 
   const toggleDropdown = (sessionId: string) => {
@@ -133,7 +210,16 @@ export function EnhancedSessionsList() {
   }
 
   const getSortIcon = (field: SortField) => {
-    if (sortField !== field) {
+    // Map UI field to URL field for comparison
+    const urlField = field === 'date' ? 'start_timestamp' : 
+                    field === 'duration' ? 'duration_seconds' : 
+                    field
+    
+    const isActive = sortField === urlField || 
+                    (sortField === 'start_timestamp' && field === 'date') ||
+                    (sortField === 'duration_seconds' && field === 'duration')
+    
+    if (!isActive) {
       return <ArrowUpDown className="w-4 h-4" />
     }
     return sortDirection === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />
@@ -255,8 +341,8 @@ export function EnhancedSessionsList() {
             <input
               type="text"
               placeholder="Search sessions by name or tags..."
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
             />
           </div>
@@ -271,12 +357,21 @@ export function EnhancedSessionsList() {
           )}
         </div>
 
+        {/* Tag Filter */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+          <TagFilter
+            selectedTags={selectedTags}
+            onTagsChange={handleTagsChange}
+            disabled={isLoading}
+          />
+        </div>
+
         {/* Sort Controls */}
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => handleSort('date')}
             className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              sortField === 'date'
+              sortField === 'start_timestamp'
                 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
             }`}
@@ -286,7 +381,7 @@ export function EnhancedSessionsList() {
           <button
             onClick={() => handleSort('duration')}
             className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              sortField === 'duration'
+              sortField === 'duration_seconds'
                 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
             }`}
@@ -305,12 +400,30 @@ export function EnhancedSessionsList() {
           </button>
         </div>
 
-        {/* Results Summary */}
-        <div className="text-sm text-gray-600 dark:text-gray-400">
-          {filteredAndSortedSessions.length === sessions.length ? (
-            `Showing ${filteredAndSortedSessions.length} sessions`
-          ) : (
-            `Showing ${filteredAndSortedSessions.length} of ${sessions.length} sessions`
+        {/* Results Summary and Clear Filters */}
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {filteredAndSortedSessions.length === sessions.length ? (
+              `Showing ${filteredAndSortedSessions.length} sessions`
+            ) : (
+              `Showing ${filteredAndSortedSessions.length} of ${sessions.length} sessions`
+            )}
+          </div>
+          
+          {(searchValue || selectedTags.length > 0) && (
+            <button
+              onClick={() => {
+                setSearchValue('') // Clear local search state immediately
+                setParameters({
+                  search: undefined,
+                  tags: undefined,
+                  page: 1
+                })
+              }}
+              className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300"
+            >
+              Clear all filters
+            </button>
           )}
         </div>
 
@@ -474,7 +587,7 @@ export function EnhancedSessionsList() {
               </div>
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
                   className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -482,7 +595,7 @@ export function EnhancedSessionsList() {
                   Previous
                 </button>
                 <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
                   className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

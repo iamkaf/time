@@ -21,9 +21,9 @@ export interface UseUrlStateOptions {
   filterCompatibility?: Record<string, string[]>
 }
 
-export interface UrlState {
+export interface UrlState<T = Record<string, unknown>> {
   tab: string
-  parameters: Record<string, unknown>
+  parameters: T
 }
 
 // Default parameter configurations
@@ -58,12 +58,12 @@ const DEFAULT_PARAMETER_CONFIGS: Record<string, ParameterConfig> = {
   },
   sort: {
     type: 'string',
-    default: 'start_timestamp',
+    default: undefined,
     validate: (value: unknown) => typeof value === 'string' && ['start_timestamp', 'duration_seconds', 'name'].includes(value)
   },
   order: {
     type: 'string',
-    default: 'desc',
+    default: undefined,
     validate: (value: unknown) => typeof value === 'string' && ['asc', 'desc'].includes(value)
   },
   page: {
@@ -81,7 +81,7 @@ const DEFAULT_FILTER_COMPATIBILITY = {
   export: ['from', 'to', 'tags', 'format']
 }
 
-export function useUrlState(options: UseUrlStateOptions = {}) {
+export function useUrlState<T = Record<string, unknown>>(options: UseUrlStateOptions = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -175,27 +175,27 @@ export function useUrlState(options: UseUrlStateOptions = {}) {
   }, [parameterConfigs])
 
   // Get current URL state
-  const currentState = useMemo((): UrlState => {
+  const currentState = useMemo((): UrlState<T> => {
     const tab = parseParameter('tab', searchParams.get('tab')) as string
-    const parameters: Record<string, unknown> = {}
+    const parameters = {} as T
 
     // Parse all parameters
     for (const key of Object.keys(parameterConfigs)) {
-      parameters[key] = parseParameter(key, searchParams.get(key))
+      (parameters as Record<string, unknown>)[key] = parseParameter(key, searchParams.get(key))
     }
 
     return { tab, parameters }
   }, [searchParams, parseParameter, parameterConfigs])
 
   // Update URL with new parameters
-  const updateUrl = useCallback((updates: Partial<Record<string, unknown>>, currentParams: Record<string, unknown>, replace = true) => {
+  const updateUrl = useCallback((updates: Partial<T>, currentParams: T, replace = true) => {
     const params = new URLSearchParams()
     
     // Apply updates to current parameters
     const newParameters = { ...currentParams, ...updates }
     
     // Serialize all parameters
-    for (const [key, value] of Object.entries(newParameters)) {
+    for (const [key, value] of Object.entries(newParameters as Record<string, unknown>)) {
       const serialized = serializeParameter(key, value)
       if (serialized !== null) {
         params.set(key, serialized)
@@ -204,6 +204,7 @@ export function useUrlState(options: UseUrlStateOptions = {}) {
 
     // Update URL
     const url = params.toString() ? `?${params.toString()}` : ''
+    
     if (replace) {
       router.replace(url, { scroll: false })
     } else {
@@ -257,21 +258,22 @@ export function useUrlState(options: UseUrlStateOptions = {}) {
   }, [validTabs, filterCompatibility, router, searchParams])
 
   // Set individual parameter
-  const setParameter = useCallback((key: string, value: unknown) => {
+  const setParameter = useCallback((key: keyof T, value: unknown) => {
     // Get current parameters at the time of calling
-    const currentParams: Record<string, unknown> = {}
+    const currentParams = {} as T
     for (const k of Object.keys(parameterConfigs)) {
-      currentParams[k] = parseParameter(k, searchParams.get(k))
+      (currentParams as Record<string, unknown>)[k] = parseParameter(k, searchParams.get(k))
     }
-    updateUrl({ [key]: value }, currentParams)
+    
+    updateUrl({ [key]: value } as Partial<T>, currentParams)
   }, [updateUrl, parameterConfigs, parseParameter, searchParams])
 
   // Set multiple parameters
-  const setParameters = useCallback((parameters: Record<string, unknown>) => {
+  const setParameters = useCallback((parameters: Partial<T>) => {
     // Get current parameters at the time of calling
-    const currentParams: Record<string, unknown> = {}
+    const currentParams = {} as T
     for (const key of Object.keys(parameterConfigs)) {
-      currentParams[key] = parseParameter(key, searchParams.get(key))
+      (currentParams as Record<string, unknown>)[key] = parseParameter(key, searchParams.get(key))
     }
     updateUrl(parameters, currentParams)
   }, [updateUrl, parameterConfigs, parseParameter, searchParams])
@@ -279,15 +281,15 @@ export function useUrlState(options: UseUrlStateOptions = {}) {
   // Clear all filters (keep tab)
   const clearFilters = useCallback(() => {
     // Get current parameters at the time of calling
-    const currentParams: Record<string, unknown> = {}
+    const currentParams = {} as T
     for (const key of Object.keys(parameterConfigs)) {
-      currentParams[key] = parseParameter(key, searchParams.get(key))
+      (currentParams as Record<string, unknown>)[key] = parseParameter(key, searchParams.get(key))
     }
     
-    const updates: Record<string, unknown> = {}
+    const updates = {} as Partial<T>
     for (const key of Object.keys(parameterConfigs)) {
       if (key !== 'tab') {
-        updates[key] = parameterConfigs[key]?.default
+        (updates as Record<string, unknown>)[key] = parameterConfigs[key]?.default
       }
     }
     updateUrl(updates, currentParams)
@@ -297,7 +299,7 @@ export function useUrlState(options: UseUrlStateOptions = {}) {
   const getUrl = useCallback((includeDefaults = false) => {
     const params = new URLSearchParams()
     
-    for (const [key, value] of Object.entries(currentState.parameters)) {
+    for (const [key, value] of Object.entries(currentState.parameters as Record<string, unknown>)) {
       const config = parameterConfigs[key]
       const shouldInclude = includeDefaults || value !== config?.default
       
