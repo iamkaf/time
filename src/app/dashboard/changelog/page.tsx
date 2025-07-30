@@ -7,6 +7,50 @@ export const metadata: Metadata = {
 
 const changelog = [
   {
+    version: 'Unreleased',
+    date: '',
+    title: 'Major Session Management & Analytics Update',
+    type: 'unreleased',
+    sections: {
+      added: [
+        'Complete user preferences system in Settings page with time format (12h/24h), start of week (Sunday/Monday), and default tags',
+        'Comprehensive session analytics with 5 interactive charts: time distribution, tag breakdown, productivity trends, peak hours, and duration patterns',
+        'Advanced session management with search by name and tags, sorting by date/duration/name, and pagination',
+        'Bulk selection and deletion of multiple sessions with keyboard shortcuts (Shift+click, Ctrl/Cmd+click)',
+        'Professional data export in CSV, JSON, and PDF formats with field selection and date range filtering',
+        'Export history tracking that logs all your data exports with full audit trail',
+        'Smart URL state management that preserves your filters, sort preferences, and date ranges across page refreshes',
+        'Real-time export preview showing exactly what data will be downloaded before export',
+        'Quick date range presets for common time periods (7 days, 30 days, 90 days, 1 year)',
+        'Tag-based filtering with expandable interface and search within tags',
+        'Session selection with visual feedback and bulk action confirmation dialogs',
+        'Cross-platform scrollbar consistency to prevent layout shifts on different operating systems'
+      ],
+      changed: [
+        'Session timestamps now respect your preferred time format (12h/24h) throughout the entire application',
+        'Analytics calculations now use your chosen start of week preference for accurate weekly data',
+        'Timer reset button now applies your default tags automatically for faster session setup',
+        'Export functionality now formats all timestamps according to your time format preference',
+        'Search functionality now includes debouncing for better performance and smoother typing experience',
+        'Sessions page pagination increased from 10 to 20 items per page for more efficient browsing',
+        'Enhanced session list with improved visual hierarchy and consistent spacing'
+      ],
+      deprecated: [],
+      removed: [
+        '"Coming soon" placeholders in Settings page replaced with fully functional controls'
+      ],
+      fixed: [
+        'URL parameter conflicts when switching between Sessions, Analytics, and Export tabs',
+        'Sort button toggle state synchronization with URL parameters', 
+        'Windows scrollbar layout shifts that caused content to jump when scrollbars appeared',
+        'Session name field behavior that incorrectly refilled after intentional clearing',
+        'URL state serialization issues that caused some parameters to be lost',
+        'Tag filtering interface consistency and interaction improvements'
+      ],
+      security: []
+    }
+  },
+  {
     version: '0.1.0',
     date: '2025-07-30',
     title: 'Initial Release',
@@ -64,7 +108,7 @@ export default function ChangelogPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                      [{release.version}] - {new Date(release.date).toISOString().split('T')[0]}
+                      [{release.version}]{release.date ? ` - ${new Date(release.date).toISOString().split('T')[0]}` : ''}
                     </h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                       {release.title}
@@ -73,6 +117,8 @@ export default function ChangelogPage() {
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     release.type === 'release' 
                       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                      : release.type === 'unreleased'
+                      ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300'
                       : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
                   }`}>
                     {release.type}

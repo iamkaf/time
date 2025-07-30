@@ -2,8 +2,44 @@
 
 All notable changes to the TIME app will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased] - Major Session Management & Analytics Update
+
+### Added
+- Complete user preferences system in Settings page with time format (12h/24h), start of week (Sunday/Monday), and default tags
+- Comprehensive session analytics with 5 interactive charts: time distribution, tag breakdown, productivity trends, peak hours, and duration patterns
+- Advanced session management with search by name and tags, sorting by date/duration/name, and pagination
+- Bulk selection and deletion of multiple sessions with keyboard shortcuts (Shift+click, Ctrl/Cmd+click)
+- Professional data export in CSV, JSON, and PDF formats with field selection and date range filtering
+- Export history tracking that logs all your data exports with full audit trail
+- Smart URL state management that preserves your filters, sort preferences, and date ranges across page refreshes
+- Real-time export preview showing exactly what data will be downloaded before export
+- Quick date range presets for common time periods (7 days, 30 days, 90 days, 1 year)
+- Tag-based filtering with expandable interface and search within tags
+- Session selection with visual feedback and bulk action confirmation dialogs
+- Cross-platform scrollbar consistency to prevent layout shifts on different operating systems
+
+### Changed
+- Session timestamps now respect your preferred time format (12h/24h) throughout the entire application
+- Analytics calculations now use your chosen start of week preference for accurate weekly data
+- Timer reset button now applies your default tags automatically for faster session setup
+- Export functionality now formats all timestamps according to your time format preference
+- Search functionality now includes debouncing for better performance and smoother typing experience
+- Sessions page pagination increased from 10 to 20 items per page for more efficient browsing
+- Enhanced session list with improved visual hierarchy and consistent spacing
+
+### Removed
+- "Coming soon" placeholders in Settings page replaced with fully functional controls
+
+### Fixed
+- URL parameter conflicts when switching between Sessions, Analytics, and Export tabs
+- Sort button toggle state synchronization with URL parameters
+- Windows scrollbar layout shifts that caused content to jump when scrollbars appeared
+- Session name field behavior that incorrectly refilled after intentional clearing
+- URL state serialization issues that caused some parameters to be lost
+- Tag filtering interface consistency and interaction improvements
 
 ## [0.1.0] - 2025-07-30
 
