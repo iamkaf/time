@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { format } from 'date-fns'
 import { Trash2, AlertTriangle } from 'lucide-react'
 import { Modal } from '@/components/ui/modal'
 import { useSessions } from '@/hooks/useSessions'
+import { useTimeFormat } from '@/hooks/useTimeFormat'
 import { formatDuration } from '@/lib/utils/time'
 import type { Session } from '@/types/supabase'
 
@@ -24,6 +24,7 @@ export function BulkDeleteSessionsModal({
   onComplete,
 }: BulkDeleteSessionsModalProps) {
   const { bulkDeleteSessions, isBulkDeleting } = useSessions()
+  const { formatDateTime } = useTimeFormat()
   const [error, setError] = useState('')
 
   const handleDelete = async () => {
@@ -97,7 +98,7 @@ export function BulkDeleteSessionsModal({
                   </span>
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {format(new Date(session.start_timestamp), 'MMM d, yyyy • h:mm a')}
+                  {formatDateTime(new Date(session.start_timestamp))}
                 </div>
               </div>
             ))}

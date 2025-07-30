@@ -3,11 +3,23 @@
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { VolumeSlider } from '@/components/settings/volume-slider'
 import { ToggleSwitch } from '@/components/settings/toggle-switch'
+import { SelectDropdown } from '@/components/settings/select-dropdown'
+import { RadioGroup } from '@/components/settings/radio-group'
+import { TagInput } from '@/components/settings/tag-input'
 import { useSettings } from '@/hooks/useSettings'
 import { useState, useEffect } from 'react'
 
 export default function SettingsPage() {
-  const { settings, isLoaded, updateMasterVolume, toggleSound, updateDefaultSessionName } = useSettings()
+  const { 
+    settings, 
+    isLoaded, 
+    updateMasterVolume, 
+    toggleSound, 
+    updateDefaultSessionName, 
+    updateTimeFormat, 
+    updateStartOfWeek, 
+    updateDefaultTags 
+  } = useSettings()
   const [sessionNameInput, setSessionNameInput] = useState(settings.defaultSessionName)
 
   // Sync local input state with settings
@@ -94,7 +106,7 @@ export default function SettingsPage() {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex-1 mr-4">
                     <h3 className="text-base font-medium text-gray-900 dark:text-white">
                       Time Format
                     </h3>
@@ -102,8 +114,61 @@ export default function SettingsPage() {
                       Choose between 12-hour and 24-hour format
                     </p>
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    Coming soon
+                  <div className="w-32">
+                    <SelectDropdown
+                      value={settings.timeFormat}
+                      onChange={updateTimeFormat}
+                      disabled={!isLoaded}
+                      options={[
+                        { value: '12h', label: '12-hour' },
+                        { value: '24h', label: '24-hour' }
+                      ]}
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-base font-medium text-gray-900 dark:text-white mb-3">
+                      Start of Week
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Choose which day starts your week for analytics and calendar views
+                    </p>
+                    <RadioGroup
+                      value={settings.startOfWeek}
+                      onChange={updateStartOfWeek}
+                      disabled={!isLoaded}
+                      name="start-of-week"
+                      options={[
+                        { 
+                          value: 1, 
+                          label: 'Monday', 
+                          description: 'Week starts on Monday (ISO standard)' 
+                        },
+                        { 
+                          value: 0, 
+                          label: 'Sunday', 
+                          description: 'Week starts on Sunday (US standard)' 
+                        }
+                      ]}
+                    />
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-base font-medium text-gray-900 dark:text-white mb-3">
+                      Default Tags
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Tags that will be suggested when creating new sessions
+                    </p>
+                    <TagInput
+                      tags={settings.defaultTags}
+                      onChange={updateDefaultTags}
+                      disabled={!isLoaded}
+                      placeholder="Add a default tag..."
+                      maxTags={5}
+                    />
                   </div>
                 </div>
               </div>

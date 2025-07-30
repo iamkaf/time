@@ -4,7 +4,8 @@ import { useState, useMemo, useCallback } from 'react'
 import { format } from 'date-fns'
 import { useSessions } from './useSessions'
 import { useExportHistory } from './useExportHistory'
-import { formatDuration } from '@/lib/utils/time'
+import { useSettings } from './useSettings'
+import { formatDuration, formatDateTimeWithSeconds, formatDateTime } from '@/lib/utils/time'
 import type { Session } from '@/types/supabase'
 import type { ExportFormat } from '@/components/export/format-selector'
 
@@ -60,7 +61,7 @@ function escapeCsvValue(value: string): string {
 }
 
 // Helper function to format session data for CSV
-function formatSessionForCsv(session: Session, enabledFields: ExportField[]): Record<string, string> {
+function formatSessionForCsv(session: Session, enabledFields: ExportField[], timeFormat: '12h' | '24h' = '24h'): Record<string, string> {
   const formatted: Record<string, string> = {}
 
   enabledFields.forEach(field => {
@@ -72,12 +73,12 @@ function formatSessionForCsv(session: Session, enabledFields: ExportField[]): Re
         break
       case 'start_timestamp':
         formatted[field.label] = session.start_timestamp 
-          ? format(new Date(session.start_timestamp), 'yyyy-MM-dd HH:mm:ss')
+          ? formatDateTimeWithSeconds(new Date(session.start_timestamp), timeFormat)
           : ''
         break
       case 'end_timestamp':
         formatted[field.label] = session.end_timestamp 
-          ? format(new Date(session.end_timestamp), 'yyyy-MM-dd HH:mm:ss')
+          ? formatDateTimeWithSeconds(new Date(session.end_timestamp), timeFormat)
           : ''
         break
       case 'formattedDuration':
@@ -92,7 +93,7 @@ function formatSessionForCsv(session: Session, enabledFields: ExportField[]): Re
         break
       case 'created_at':
         formatted[field.label] = session.created_at 
-          ? format(new Date(session.created_at), 'yyyy-MM-dd HH:mm:ss')
+          ? formatDateTimeWithSeconds(new Date(session.created_at), timeFormat)
           : ''
         break
       default:
@@ -108,6 +109,7 @@ function formatSessionForCsv(session: Session, enabledFields: ExportField[]): Re
 export function useSessionExport(initialDateRange?: Partial<DateRange>) {
   const { sessions, isLoading } = useSessions()
   const { createExportHistory } = useExportHistory()
+  const { settings } = useSettings()
   
   // Initialize date range with URL parameters if provided, otherwise use defaults
   const getInitialDateRange = (): DateRange => {
@@ -186,14 +188,14 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
     
     // Create CSV rows
     const rows = sessions.map(session => {
-      const formatted = formatSessionForCsv(session, enabledFields)
+      const formatted = formatSessionForCsv(session, enabledFields, settings.timeFormat)
       return enabledFields
         .map(field => escapeCsvValue(formatted[field.label] || ''))
         .join(',')
     })
 
     return metadata + headers + '\n' + rows.join('\n')
-  }, [dateRange])
+  }, [dateRange, settings.timeFormat])
 
   // Generate JSON content
   const generateJson = useCallback((sessions: Session[], fields: ExportField[]): string => {
@@ -285,11 +287,11 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
             return session.name || 'Untitled Session'
           case 'start_timestamp':
             return session.start_timestamp 
-              ? format(new Date(session.start_timestamp), 'MMM d, yyyy HH:mm')
+              ? formatDateTime(new Date(session.start_timestamp), settings.timeFormat)
               : ''
           case 'end_timestamp':
             return session.end_timestamp 
-              ? format(new Date(session.end_timestamp), 'MMM d, yyyy HH:mm')
+              ? formatDateTime(new Date(session.end_timestamp), settings.timeFormat)
               : ''
           case 'formattedDuration':
             return session.duration_seconds 
@@ -301,7 +303,7 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
               : ''
           case 'created_at':
             return session.created_at 
-              ? format(new Date(session.created_at), 'MMM d, yyyy HH:mm')
+              ? formatDateTime(new Date(session.created_at), settings.timeFormat)
               : ''
           default:
             const value = session[field.key as keyof Session]
@@ -332,7 +334,7 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
 
     // Return as blob
     return new Blob([doc.output('arraybuffer')], { type: 'application/pdf' })
-  }, [dateRange])
+  }, [dateRange, settings.timeFormat])
 
   // Download export in selected format
   const downloadExport = useCallback(async () => {

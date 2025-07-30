@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { format } from 'date-fns'
 import { Trash2, AlertTriangle } from 'lucide-react'
 import { Modal } from '@/components/ui/modal'
 import { useSessions } from '@/hooks/useSessions'
+import { useTimeFormat } from '@/hooks/useTimeFormat'
 import { formatDuration } from '@/lib/utils/time'
 import type { Session } from '@/types/supabase'
 
@@ -16,6 +16,7 @@ interface DeleteSessionModalProps {
 
 export function DeleteSessionModal({ isOpen, onClose, session }: DeleteSessionModalProps) {
   const { deleteSession, isDeleting } = useSessions()
+  const { formatDateTime } = useTimeFormat()
   const [error, setError] = useState('')
 
   const handleDelete = async () => {
@@ -83,7 +84,7 @@ export function DeleteSessionModal({ isOpen, onClose, session }: DeleteSessionMo
             <div className="flex justify-between items-start">
               <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Date:</span>
               <span className="text-sm text-gray-900 dark:text-white">
-                {format(new Date(session.start_timestamp), 'MMM d, yyyy • h:mm a')}
+                {formatDateTime(new Date(session.start_timestamp))}
               </span>
             </div>
 

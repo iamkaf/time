@@ -15,10 +15,9 @@ export interface AppSettings {
   
   // General settings
   defaultSessionName: string
-  
-  // Future settings can be added here
-  // timeFormat: '12h' | '24h'
-  // startOfWeek: 0 | 1 // Sunday = 0, Monday = 1
+  timeFormat: '12h' | '24h'
+  startOfWeek: 0 | 1 // Sunday = 0, Monday = 1
+  defaultTags: string[]
 }
 
 const defaultSettings: AppSettings = {
@@ -28,7 +27,10 @@ const defaultSettings: AppSettings = {
     stop: true,
     notify: true
   },
-  defaultSessionName: ''
+  defaultSessionName: '',
+  timeFormat: '24h',
+  startOfWeek: 1, // Monday
+  defaultTags: []
 }
 
 function saveSettings(settings: AppSettings) {
@@ -53,7 +55,8 @@ function loadSettings(): AppSettings {
       soundEnabled: {
         ...defaultSettings.soundEnabled,
         ...parsedSettings.soundEnabled
-      }
+      },
+      defaultTags: Array.isArray(parsedSettings.defaultTags) ? parsedSettings.defaultTags : defaultSettings.defaultTags
     }
   } catch (error) {
     console.warn('Failed to load settings from localStorage:', error)
@@ -111,6 +114,18 @@ export function useSettings() {
     updateSettings({ defaultSessionName: name })
   }, [updateSettings])
 
+  const updateTimeFormat = useCallback((format: '12h' | '24h') => {
+    updateSettings({ timeFormat: format })
+  }, [updateSettings])
+
+  const updateStartOfWeek = useCallback((startOfWeek: 0 | 1) => {
+    updateSettings({ startOfWeek })
+  }, [updateSettings])
+
+  const updateDefaultTags = useCallback((tags: string[]) => {
+    updateSettings({ defaultTags: tags })
+  }, [updateSettings])
+
   const resetSettings = useCallback(() => {
     setSettings(defaultSettings)
   }, [])
@@ -122,6 +137,9 @@ export function useSettings() {
     updateMasterVolume,
     toggleSound,
     updateDefaultSessionName,
+    updateTimeFormat,
+    updateStartOfWeek,
+    updateDefaultTags,
     resetSettings
   }
 }

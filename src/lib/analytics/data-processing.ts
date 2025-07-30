@@ -39,8 +39,8 @@ export interface DurationDistributionPoint {
   maxMinutes: number
 }
 
-// Helper function to get period boundaries
-export function getPeriodBoundaries(date: Date, period: ViewPeriod) {
+// Helper function to get period boundaries  
+export function getPeriodBoundaries(date: Date, period: ViewPeriod, weekStartsOn: 0 | 1 = 1) {
   switch (period) {
     case 'daily':
       return {
@@ -49,8 +49,8 @@ export function getPeriodBoundaries(date: Date, period: ViewPeriod) {
       }
     case 'weekly':
       return {
-        start: startOfWeek(date, { weekStartsOn: 1 }), // Monday start
-        end: endOfWeek(date, { weekStartsOn: 1 })
+        start: startOfWeek(date, { weekStartsOn }),
+        end: endOfWeek(date, { weekStartsOn })
       }
     case 'monthly':
       return {
@@ -77,7 +77,8 @@ export function processTimeDistribution(
   sessions: Session[],
   startDate: Date,
   endDate: Date,
-  period: ViewPeriod
+  period: ViewPeriod,
+  weekStartsOn: 0 | 1 = 1
 ): TimeDistributionPoint[] {
   // Generate all periods in the range
   let periods: Date[]
@@ -87,7 +88,7 @@ export function processTimeDistribution(
       periods = eachDayOfInterval({ start: startDate, end: endDate })
       break
     case 'weekly':
-      periods = eachWeekOfInterval({ start: startDate, end: endDate }, { weekStartsOn: 1 })
+      periods = eachWeekOfInterval({ start: startDate, end: endDate }, { weekStartsOn })
       break
     case 'monthly':
       periods = eachMonthOfInterval({ start: startDate, end: endDate })
@@ -95,7 +96,7 @@ export function processTimeDistribution(
   }
 
   return periods.map(periodDate => {
-    const { start, end } = getPeriodBoundaries(periodDate, period)
+    const { start, end } = getPeriodBoundaries(periodDate, period, weekStartsOn)
     
     // Filter sessions in this period
     const periodSessions = sessions.filter(session => {
@@ -161,9 +162,10 @@ export function processProductivityTrends(
   sessions: Session[],
   startDate: Date,
   endDate: Date,
-  period: ViewPeriod
+  period: ViewPeriod,
+  weekStartsOn: 0 | 1 = 1
 ): ProductivityTrendPoint[] {
-  const timeDistribution = processTimeDistribution(sessions, startDate, endDate, period)
+  const timeDistribution = processTimeDistribution(sessions, startDate, endDate, period, weekStartsOn)
   
   return timeDistribution.map(point => ({
     period: point.date,

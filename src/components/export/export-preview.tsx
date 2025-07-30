@@ -1,8 +1,8 @@
 'use client'
 
-import { format } from 'date-fns'
 import { Eye, FileText } from 'lucide-react'
 import { formatDuration } from '@/lib/utils/time'
+import { useTimeFormat } from '@/hooks/useTimeFormat'
 import type { Session } from '@/types/supabase'
 import type { ExportField } from '@/hooks/useSessionExport'
 
@@ -14,42 +14,43 @@ interface ExportPreviewProps {
 
 const MAX_PREVIEW_ROWS = 10
 
-// Helper function to format session value for display
-function formatSessionValue(session: Session, fieldKey: string): string {
-  switch (fieldKey) {
-    case 'displayName':
-      return session.name || 'Untitled Session'
-    case 'start_timestamp':
-      return session.start_timestamp 
-        ? format(new Date(session.start_timestamp), 'yyyy-MM-dd HH:mm')
-        : ''
-    case 'end_timestamp':
-      return session.end_timestamp 
-        ? format(new Date(session.end_timestamp), 'yyyy-MM-dd HH:mm')
-        : ''
-    case 'formattedDuration':
-      return session.duration_seconds 
-        ? formatDuration(session.duration_seconds)
-        : ''
-    case 'tags':
-      return session.tags && session.tags.length > 0
-        ? session.tags.join(', ')
-        : ''
-    case 'created_at':
-      return session.created_at 
-        ? format(new Date(session.created_at), 'yyyy-MM-dd HH:mm')
-        : ''
-    default:
-      const value = session[fieldKey as keyof Session]
-      return value ? String(value) : ''
-  }
-}
-
 export function ExportPreview({ sessions, enabledFields, isLoading = false }: ExportPreviewProps) {
+  const { formatDateTime } = useTimeFormat()
   const hasData = sessions.length > 0
   const hasEnabledFields = enabledFields.length > 0
   const showMoreCount = Math.max(0, sessions.length - MAX_PREVIEW_ROWS)
   const previewSessions = sessions.slice(0, MAX_PREVIEW_ROWS)
+
+  // Helper function to format session value for display
+  const formatSessionValue = (session: Session, fieldKey: string): string => {
+    switch (fieldKey) {
+      case 'displayName':
+        return session.name || 'Untitled Session'
+      case 'start_timestamp':
+        return session.start_timestamp 
+          ? formatDateTime(new Date(session.start_timestamp))
+          : ''
+      case 'end_timestamp':
+        return session.end_timestamp 
+          ? formatDateTime(new Date(session.end_timestamp))
+          : ''
+      case 'formattedDuration':
+        return session.duration_seconds 
+          ? formatDuration(session.duration_seconds)
+          : ''
+      case 'tags':
+        return session.tags && session.tags.length > 0
+          ? session.tags.join(', ')
+          : ''
+      case 'created_at':
+        return session.created_at 
+          ? formatDateTime(new Date(session.created_at))
+          : ''
+      default:
+        const value = session[fieldKey as keyof Session]
+        return value ? String(value) : ''
+    }
+  }
 
   if (isLoading) {
     return (

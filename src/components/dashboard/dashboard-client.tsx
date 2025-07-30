@@ -2,7 +2,7 @@
 
 import { Timer } from '@/components/timer/timer'
 import { useSessions, useSessionStats } from '@/hooks/useSessions'
-import { format } from 'date-fns'
+import { useTimeFormat } from '@/hooks/useTimeFormat'
 import { formatDuration } from '@/lib/utils/time'
 
 export function DashboardClient() {
@@ -92,6 +92,7 @@ interface RecentSessionsProps {
 
 export function RecentSessions({ limit = 10 }: RecentSessionsProps) {
   const { sessions, isLoading } = useSessions()
+  const { formatDateTime } = useTimeFormat()
 
   if (isLoading) {
     return (
@@ -144,7 +145,7 @@ export function RecentSessions({ limit = 10 }: RecentSessionsProps) {
               )}
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {format(new Date(session.start_timestamp), 'MMM d, yyyy • h:mm a')}
+              {formatDateTime(new Date(session.start_timestamp))}
             </p>
           </div>
           <div className="text-right">

@@ -98,6 +98,11 @@ export function Timer({ onSessionComplete }: TimerProps) {
     resetTimer()
     setTagInput('')
     setUserHasClearedSessionName(false) // Reset the flag so default name can be applied
+    
+    // Apply default tags if they exist
+    if (settingsLoaded && settings.defaultTags && settings.defaultTags.length > 0) {
+      updateSessionTags(settings.defaultTags)
+    }
   }
 
   const handlePause = async () => {

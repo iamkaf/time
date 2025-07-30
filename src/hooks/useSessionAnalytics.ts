@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useCallback } from 'react'
 import { useSessions } from './useSessions'
+import { useSettings } from './useSettings'
 import { 
   processTimeDistribution, 
   processTagAnalytics, 
@@ -63,6 +64,7 @@ function getDefaultDateRange(): DateRange {
 
 export function useSessionAnalytics(initialDateRange?: Partial<DateRange>) {
   const { sessions, isLoading } = useSessions()
+  const { settings } = useSettings()
   
   // Initialize date range with URL parameters if provided, otherwise use defaults
   const getInitialDateRange = (): DateRange => {
@@ -107,13 +109,13 @@ export function useSessionAnalytics(initialDateRange?: Partial<DateRange>) {
     const endDate = new Date(dateRange.endDate)
 
     return {
-      timeDistribution: processTimeDistribution(filteredSessions, startDate, endDate, viewPeriod),
+      timeDistribution: processTimeDistribution(filteredSessions, startDate, endDate, viewPeriod, settings.startOfWeek),
       tagAnalytics: processTagAnalytics(filteredSessions),
-      productivityTrends: processProductivityTrends(filteredSessions, startDate, endDate, viewPeriod),
+      productivityTrends: processProductivityTrends(filteredSessions, startDate, endDate, viewPeriod, settings.startOfWeek),
       peakHours: processPeakHours(filteredSessions),
       durationDistribution: processDurationDistribution(filteredSessions)
     }
-  }, [filteredSessions, dateRange, viewPeriod])
+  }, [filteredSessions, dateRange, viewPeriod, settings.startOfWeek])
 
   // Calculate summary statistics
   const summary = useMemo((): AnalyticsSummary => {
