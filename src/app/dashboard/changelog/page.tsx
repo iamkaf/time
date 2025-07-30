@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 const changelog = [
   {
     version: '0.1.0',
-    date: '2025-07-29',
+    date: '2025-07-30',
     title: 'Initial Release',
     type: 'release',
     sections: {
@@ -31,7 +31,12 @@ const changelog = [
       changed: [],
       deprecated: [],
       removed: [],
-      fixed: [],
+      fixed: [
+        'Theme switcher now properly cycles through system → light → dark modes',
+        'Tailwind CSS v4 dark mode compatibility with next-themes',
+        'Production build warnings and linting issues',
+        'Mobile responsive navigation and layout issues'
+      ],
       security: []
     }
   }
