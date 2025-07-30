@@ -1,18 +1,23 @@
 'use client'
 
-import { useState } from 'react'
 import { EnhancedSessionsList } from '@/components/sessions/enhanced-sessions-list'
 import { ExportControls } from '@/components/export/export-controls'
 import { AnalyticsDashboard } from '@/components/analytics/analytics-dashboard'
+import { useUrlState } from '@/hooks/useUrlState'
 
 const tabs = [
   { id: 'sessions', name: 'Sessions' },
-  { id: 'details', name: 'Analytics' },
+  { id: 'analytics', name: 'Analytics' },
   { id: 'export', name: 'Export' },
 ]
 
 export default function SessionsPage() {
-  const [activeTab, setActiveTab] = useState('sessions')
+  const { tab: activeTab, setTab: setActiveTab, setParameters } = useUrlState({
+    defaultTab: 'sessions',
+    validTabs: ['sessions', 'analytics', 'export']
+  })
+
+
 
   return (
     <div className="p-6">
@@ -34,7 +39,7 @@ export default function SessionsPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm cursor-pointer transition-colors ${
                   activeTab === tab.id
                     ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
@@ -64,7 +69,7 @@ export default function SessionsPage() {
             </div>
           )}
 
-          {activeTab === 'details' && (
+          {activeTab === 'analytics' && (
             <AnalyticsDashboard />
           )}
 

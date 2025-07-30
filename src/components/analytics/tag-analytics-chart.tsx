@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts'
 import { useTheme } from 'next-themes'
 import { 
@@ -129,6 +129,7 @@ export function TagAnalyticsChart({
             innerRadius={innerRadius}
             fill="#8884d8"
             dataKey="totalTime"
+            nameKey="tag"
             stroke={isDark ? '#374151' : '#ffffff'}
             strokeWidth={2}
           >

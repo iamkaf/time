@@ -61,9 +61,24 @@ function getDefaultDateRange(): DateRange {
   }
 }
 
-export function useSessionAnalytics() {
+export function useSessionAnalytics(initialDateRange?: Partial<DateRange>) {
   const { sessions, isLoading } = useSessions()
-  const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange())
+  
+  // Initialize date range with URL parameters if provided, otherwise use defaults
+  const getInitialDateRange = (): DateRange => {
+    const defaultRange = getDefaultDateRange()
+    
+    if (initialDateRange) {
+      return {
+        startDate: initialDateRange.startDate || defaultRange.startDate,
+        endDate: initialDateRange.endDate || defaultRange.endDate
+      }
+    }
+    
+    return defaultRange
+  }
+  
+  const [dateRange, setDateRange] = useState<DateRange>(getInitialDateRange())
   const [viewPeriod, setViewPeriod] = useState<ViewPeriod>('weekly')
 
   // Filter sessions by date range

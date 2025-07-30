@@ -103,9 +103,24 @@ function formatSessionForCsv(session: Session, enabledFields: ExportField[]): Re
   return formatted
 }
 
-export function useSessionExport() {
+export function useSessionExport(initialDateRange?: Partial<DateRange>) {
   const { sessions, isLoading } = useSessions()
-  const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange())
+  
+  // Initialize date range with URL parameters if provided, otherwise use defaults
+  const getInitialDateRange = (): DateRange => {
+    const defaultRange = getDefaultDateRange()
+    
+    if (initialDateRange) {
+      return {
+        startDate: initialDateRange.startDate || defaultRange.startDate,
+        endDate: initialDateRange.endDate || defaultRange.endDate
+      }
+    }
+    
+    return defaultRange
+  }
+  
+  const [dateRange, setDateRange] = useState<DateRange>(getInitialDateRange())
   const [exportFields, setExportFields] = useState<ExportField[]>(DEFAULT_FIELDS)
   const [isExporting, setIsExporting] = useState(false)
 

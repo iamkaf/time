@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Calendar, BarChart3, PieChart, TrendingUp, Clock, BarChart2, Download } from 'lucide-react'
+import React, { useState } from 'react'
+import { Calendar, BarChart3, PieChart, TrendingUp, Clock, BarChart2, Download, RotateCcw } from 'lucide-react'
 import { format, subDays, subMonths, startOfDay, endOfDay } from 'date-fns'
 import type { ViewPeriod } from '@/lib/analytics/data-processing'
 
@@ -21,6 +21,7 @@ interface AnalyticsControlsProps {
   }
   onChartTypeChange: (chartId: string, type: string) => void
   onExport?: () => void
+  onReset?: () => void
   isLoading?: boolean
   className?: string
 }
@@ -68,6 +69,7 @@ export function AnalyticsControls({
   chartTypes,
   onChartTypeChange,
   onExport,
+  onReset,
   isLoading = false,
   className = ''
 }: AnalyticsControlsProps) {
@@ -90,25 +92,37 @@ export function AnalyticsControls({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-emerald-600" />
+          <BarChart3 className="w-5 h-5 text-emerald-600" stroke="currentColor" fill="none" strokeWidth={1.5} />
           Analytics Controls
         </h3>
-        {onExport && (
-          <button
-            onClick={onExport}
-            disabled={isLoading}
-            className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            Export Data
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {onReset && (
+            <button
+              onClick={onReset}
+              disabled={isLoading}
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Reset
+            </button>
+          )}
+          {onExport && (
+            <button
+              onClick={onExport}
+              disabled={isLoading}
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            >
+              <Download className="w-4 h-4" stroke="currentColor" fill="none" strokeWidth={1.5} />
+              Export Data
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Date Range Selection */}
       <div className="space-y-3">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-          <Calendar className="w-4 h-4" />
+          <Calendar className="w-4 h-4 text-gray-700 dark:text-gray-300" stroke="currentColor" fill="none" strokeWidth={1.5} />
           Date Range
         </label>
         
@@ -118,14 +132,14 @@ export function AnalyticsControls({
             <button
               key={preset.label}
               onClick={() => handlePresetRange(preset)}
-              className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer transition-colors"
             >
               {preset.label}
             </button>
           ))}
           <button
             onClick={() => setShowCustomRange(!showCustomRange)}
-            className="px-3 py-2 text-sm text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+            className="px-3 py-2 text-sm text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 cursor-pointer transition-colors"
           >
             Custom Range
           </button>
@@ -184,7 +198,7 @@ export function AnalyticsControls({
       {/* View Period Selection */}
       <div className="space-y-3">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-          <TrendingUp className="w-4 h-4" />
+          <TrendingUp className="w-4 h-4 text-gray-700 dark:text-gray-300" stroke="currentColor" fill="none" strokeWidth={1.5} />
           View Period
         </label>
         <div className="flex gap-2">
@@ -192,7 +206,7 @@ export function AnalyticsControls({
             <button
               key={period}
               onClick={() => onViewPeriodChange(period)}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors ${
                 viewPeriod === period
                   ? 'bg-emerald-600 text-white'
                   : 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -207,7 +221,7 @@ export function AnalyticsControls({
       {/* Chart Type Selection */}
       <div className="space-y-4">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-          <BarChart2 className="w-4 h-4" />
+          <BarChart2 className="w-4 h-4 text-gray-700 dark:text-gray-300" stroke="currentColor" fill="none" strokeWidth={1.5} />
           Chart Types
         </label>
 
@@ -221,13 +235,16 @@ export function AnalyticsControls({
               <button
                 key={type}
                 onClick={() => onChartTypeChange('timeDistribution', type)}
-                className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors flex items-center gap-2 ${
+                className={`px-3 py-2 text-xs font-medium rounded-lg cursor-pointer transition-colors flex items-center gap-2 ${
                   chartTypes.timeDistribution === type
                     ? 'bg-emerald-600 text-white'
                     : 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
-                <BarChart3 className="w-3 h-3" />
+                {type === 'bar' ? 
+                  <BarChart3 /> : 
+                  <TrendingUp />
+                }
                 {type.charAt(0).toUpperCase() + type.slice(1)}
               </button>
             ))}
@@ -244,13 +261,13 @@ export function AnalyticsControls({
               <button
                 key={type}
                 onClick={() => onChartTypeChange('tagAnalytics', type)}
-                className={`px-3 py-2 text-xs font-medium rounded-lg transition-colors flex items-center gap-2 ${
+                className={`px-3 py-2 text-xs font-medium rounded-lg cursor-pointer transition-colors flex items-center gap-2 ${
                   chartTypes.tagAnalytics === type
                     ? 'bg-emerald-600 text-white'
                     : 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
-                <PieChart className="w-3 h-3" />
+                <PieChart />
                 {type.charAt(0).toUpperCase() + type.slice(1)}
               </button>
             ))}
@@ -270,7 +287,7 @@ export function AnalyticsControls({
           <div>
             <div className="text-xs text-gray-500 dark:text-gray-400">View Mode</div>
             <div className="text-sm font-medium text-gray-900 dark:text-white flex items-center justify-center gap-1">
-              <Clock className="w-3 h-3" />
+              <Clock className="w-3 h-3 text-gray-900 dark:text-white" stroke="currentColor" fill="none" strokeWidth={1} />
               {viewPeriod}
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { AlertCircle, TrendingUp, Users, Clock, Target } from 'lucide-react'
 import { useSessionAnalytics } from '@/hooks/useSessionAnalytics'
+import { useUrlState } from '@/hooks/useUrlState'
 import { AnalyticsControls } from './analytics-controls'
 import { TimeDistributionChart } from './time-distribution-chart'
 import { TagAnalyticsChart } from './tag-analytics-chart'
@@ -21,8 +22,34 @@ interface AnalyticsDashboardProps {
 }
 
 export function AnalyticsDashboard({ className = '' }: AnalyticsDashboardProps) {
+  // Get URL state for date parameters
+  const { parameters, setParameters } = useUrlState()
+  
+  // Convert URL date parameters to analytics hook format
+  const initialDateRange = useMemo(() => {
+    const fromDate = parameters.from as Date | undefined
+    const toDate = parameters.to as Date | undefined
+    
+    if (!fromDate && !toDate) return undefined
+    
+    // Convert Date objects to ISO datetime-local format (YYYY-MM-DDTHH:mm)
+    const formatForDateTimeLocal = (date: Date): string => {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      const hours = String(date.getHours()).padStart(2, '0')
+      const minutes = String(date.getMinutes()).padStart(2, '0')
+      return `${year}-${month}-${day}T${hours}:${minutes}`
+    }
+    
+    return {
+      startDate: fromDate ? formatForDateTimeLocal(fromDate) : undefined,
+      endDate: toDate ? formatForDateTimeLocal(toDate) : undefined
+    }
+  }, [parameters.from, parameters.to])
+  
   // Fetch analytics data using existing hook
-  const analytics = useSessionAnalytics()
+  const analytics = useSessionAnalytics(initialDateRange)
   
   // State for chart types only (date range managed by hook)
   const [chartTypes, setChartTypes] = useState({
@@ -50,9 +77,16 @@ export function AnalyticsDashboard({ className = '' }: AnalyticsDashboardProps) 
       return `${year}-${month}-${day}T${hours}:${minutes}`
     }
 
+    // Update analytics internal state
     analytics.updateDateRange({
       startDate: formatForInput(newRange.from),
       endDate: formatForInput(newRange.to)
+    })
+    
+    // Update URL parameters to keep everything in sync
+    setParameters({
+      from: newRange.from,
+      to: newRange.to
     })
   }
 
@@ -78,10 +112,38 @@ export function AnalyticsDashboard({ className = '' }: AnalyticsDashboardProps) 
     }))
   }
 
-  // Handle export (placeholder for now)
+  // Handle reset - clear both internal state and URL parameters
+  const handleReset = () => {
+    analytics.resetToDefaults() // Reset internal analytics state
+    setParameters({ from: undefined, to: undefined }) // Clear URL parameters
+  }
+
+  // Handle export - navigate to export tab with current date range
   const handleExport = () => {
-    // TODO: Implement CSV/PDF export functionality
-    console.log('Export analytics data')
+    if (!setParameters) {
+      return
+    }
+
+    // Convert analytics date range (YYYY-MM-DDTHH:mm) to URL format (YYYY-MM-DD)
+    const formatDateForUrl = (dateTimeStr: string): string => {
+      if (!dateTimeStr) return ''
+      // Extract just the date part (YYYY-MM-DD) from datetime-local format
+      return dateTimeStr.split('T')[0]
+    }
+
+    const fromDateStr = formatDateForUrl(analytics.dateRange.startDate)
+    const toDateStr = formatDateForUrl(analytics.dateRange.endDate)
+    
+    // Convert to Date objects in local timezone (not UTC) to prevent date drift
+    const fromDate = new Date(fromDateStr + 'T00:00:00') // Local start of day
+    const toDate = new Date(toDateStr + 'T23:59:59')     // Local end of day
+
+    // Set date parameters and navigate to export tab in a single atomic operation
+    setParameters({
+      from: fromDate,
+      to: toDate,
+      tab: 'export'
+    })
   }
 
   // Calculate overview stats
@@ -148,6 +210,7 @@ export function AnalyticsDashboard({ className = '' }: AnalyticsDashboardProps) 
         chartTypes={chartTypes}
         onChartTypeChange={handleChartTypeChange}
         onExport={handleExport}
+        onReset={handleReset}
         isLoading={isLoading}
       />
 

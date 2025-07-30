@@ -1,13 +1,40 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Download, RefreshCw, RotateCcw, AlertCircle } from 'lucide-react'
 import { useSessionExport } from '@/hooks/useSessionExport'
+import { useUrlState } from '@/hooks/useUrlState'
 import { DateRangePicker } from './date-range-picker'
 import { FieldSelector } from './field-selector'
 import { ExportPreview } from './export-preview'
 
 export function ExportControls() {
+  // Get URL state for date parameters
+  const { parameters, clearFilters } = useUrlState()
+  
+  // Convert URL date parameters to export hook format
+  const initialDateRange = useMemo(() => {
+    const fromDate = parameters.from as Date | undefined
+    const toDate = parameters.to as Date | undefined
+    
+    if (!fromDate && !toDate) return undefined
+    
+    // Convert Date objects to ISO datetime-local format (YYYY-MM-DDTHH:mm)
+    const formatForDateTimeLocal = (date: Date): string => {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      const hours = String(date.getHours()).padStart(2, '0')
+      const minutes = String(date.getMinutes()).padStart(2, '0')
+      return `${year}-${month}-${day}T${hours}:${minutes}`
+    }
+    
+    return {
+      startDate: fromDate ? formatForDateTimeLocal(fromDate) : undefined,
+      endDate: toDate ? formatForDateTimeLocal(toDate) : undefined
+    }
+  }, [parameters.from, parameters.to])
+  
   const {
     sessions,
     isLoading,
@@ -22,7 +49,7 @@ export function ExportControls() {
     hasData,
     selectedFieldCount,
     filteredSessionCount
-  } = useSessionExport()
+  } = useSessionExport(initialDateRange)
 
   const [error, setError] = useState<string | null>(null)
 
@@ -46,6 +73,7 @@ export function ExportControls() {
   // Handle reset
   const handleReset = () => {
     resetToDefaults()
+    clearFilters() // Clear URL parameters (from/to)
     setError(null)
   }
 
@@ -67,7 +95,7 @@ export function ExportControls() {
           type="button"
           onClick={handleReset}
           disabled={isLoading || isExporting}
-          className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
         >
           <RotateCcw className="w-4 h-4" />
           <span>Reset</span>
@@ -142,7 +170,7 @@ export function ExportControls() {
           type="button"
           onClick={handleDownload}
           disabled={!canExport || !isValidDateRange}
-          className="flex items-center space-x-3 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          className="flex items-center space-x-3 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-medium rounded-lg transition-colors disabled:cursor-not-allowed cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
         >
           {isExporting ? (
             <>
