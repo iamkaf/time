@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { EnhancedSessionsList } from '@/components/sessions/enhanced-sessions-list'
+import { ExportControls } from '@/components/export/export-controls'
 
 const tabs = [
   { id: 'sessions', name: 'Sessions' },
@@ -82,23 +83,7 @@ export default function SessionsPage() {
 
           {activeTab === 'export' && (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <div className="max-w-md">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                  Export Sessions
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Download your session data in various formats for external analysis or backup purposes.
-                </p>
-                <button 
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:cursor-not-allowed"
-                  disabled
-                >
-                  Download CSV
-                </button>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  Export functionality coming soon
-                </p>
-              </div>
+              <ExportControls />
             </div>
           )}
         </div>
