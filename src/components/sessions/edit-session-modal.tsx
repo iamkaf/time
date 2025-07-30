@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { format } from 'date-fns'
 import { X } from 'lucide-react'
 import { Modal } from '@/components/ui/modal'
 import { useSessions, useSessionTags } from '@/hooks/useSessions'

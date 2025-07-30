@@ -53,9 +53,9 @@ export function useSound() {
       }
     })
 
-    // Cleanup function
+    // Cleanup function - capture current sounds reference
+    const currentSounds = soundsRef.current
     return () => {
-      const currentSounds = soundsRef.current
       Object.values(currentSounds).forEach(sound => {
         if (sound) {
           sound.unload()

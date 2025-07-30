@@ -5,16 +5,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, X, Timer, FileText, History, Settings, LogOut } from 'lucide-react'
+import type { User } from '@supabase/supabase-js'
 
 interface SidebarLayoutProps {
   children: React.ReactNode
-  user: {
-    email: string
-    user_metadata?: {
-      full_name?: string
-      avatar_url?: string
-    }
-  }
+  user: User
 }
 
 const navigation = [

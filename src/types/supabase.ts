@@ -215,7 +215,6 @@ export const Constants = {
   },
 } as const
 
-// Type aliases for easier usage
-export type Session = Database['public']['Tables']['sessions']['Row']
-export type SessionInsert = Database['public']['Tables']['sessions']['Insert']
-export type SessionUpdate = Database['public']['Tables']['sessions']['Update']
+// Helper type exports for easier usage
+export type Session = Tables<'sessions'>
+export type SessionInsert = TablesInsert<'sessions'>

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { SessionsList } from '@/components/sessions/sessions-list'
-import type { Metadata } from 'next'
 
 const tabs = [
   { id: 'sessions', name: 'Sessions' },
