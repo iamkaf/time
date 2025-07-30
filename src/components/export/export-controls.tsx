@@ -1,16 +1,18 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import type { DateRange } from '@/hooks/useSessionExport'
 import { Download, RefreshCw, RotateCcw, AlertCircle } from 'lucide-react'
 import { useSessionExport } from '@/hooks/useSessionExport'
 import { useUrlState } from '@/hooks/useUrlState'
 import { DateRangePicker } from './date-range-picker'
 import { FieldSelector } from './field-selector'
+import { FormatSelector } from './format-selector'
 import { ExportPreview } from './export-preview'
 
 export function ExportControls() {
   // Get URL state for date parameters
-  const { parameters, clearFilters } = useUrlState()
+  const { parameters, clearFilters, setParameters } = useUrlState()
   
   // Convert URL date parameters to export hook format
   const initialDateRange = useMemo(() => {
@@ -41,10 +43,12 @@ export function ExportControls() {
     dateRange,
     exportFields,
     enabledFields,
+    selectedFormat,
     isExporting,
     updateField,
     updateDateRange,
-    downloadCsv,
+    updateFormat,
+    downloadExport,
     resetToDefaults,
     hasData,
     selectedFieldCount,
@@ -64,9 +68,31 @@ export function ExportControls() {
     setError(null)
     
     try {
-      await downloadCsv()
+      await downloadExport()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to export CSV')
+      setError(err instanceof Error ? err.message : `Failed to export ${selectedFormat.toUpperCase()}`)
+    }
+  }
+
+  // Handle date range changes with URL sync
+  const handleDateRangeChange = (range: Partial<DateRange>) => {
+    // Update internal export state
+    updateDateRange(range)
+    
+    // Convert datetime-local format to Date objects for URL state
+    const urlUpdates: Record<string, Date | undefined> = {}
+    
+    if (range.startDate !== undefined) {
+      urlUpdates.from = range.startDate ? new Date(range.startDate) : undefined
+    }
+    
+    if (range.endDate !== undefined) {
+      urlUpdates.to = range.endDate ? new Date(range.endDate) : undefined
+    }
+    
+    // Update URL parameters
+    if (Object.keys(urlUpdates).length > 0) {
+      setParameters(urlUpdates)
     }
   }
 
@@ -86,7 +112,7 @@ export function ExportControls() {
             Export Sessions
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Download your session data in CSV format for external analysis or backup purposes.
+            Download your session data in multiple formats for external analysis or backup purposes.
           </p>
         </div>
 
@@ -124,7 +150,7 @@ export function ExportControls() {
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <DateRangePicker
               dateRange={dateRange}
-              onDateRangeChange={updateDateRange}
+              onDateRangeChange={handleDateRangeChange}
               disabled={isLoading || isExporting}
             />
           </div>
@@ -134,6 +160,15 @@ export function ExportControls() {
             <FieldSelector
               fields={exportFields}
               onFieldChange={updateField}
+              disabled={isLoading || isExporting}
+            />
+          </div>
+
+          {/* Format Selector */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <FormatSelector
+              selectedFormat={selectedFormat}
+              onFormatChange={updateFormat}
               disabled={isLoading || isExporting}
             />
           </div>
@@ -175,12 +210,12 @@ export function ExportControls() {
           {isExporting ? (
             <>
               <RefreshCw className="w-5 h-5 animate-spin" />
-              <span>Generating CSV...</span>
+              <span>Generating {selectedFormat.toUpperCase()}...</span>
             </>
           ) : (
             <>
               <Download className="w-5 h-5" />
-              <span>Download CSV</span>
+              <span>Download {selectedFormat.toUpperCase()}</span>
             </>
           )}
         </button>
@@ -207,7 +242,7 @@ export function ExportControls() {
 
       {/* Help Text */}
       <div className="text-xs text-gray-500 dark:text-gray-400 text-center space-y-1">
-        <div>The exported CSV file will include all sessions within your selected date range.</div>
+        <div>The exported {selectedFormat.toUpperCase()} file will include all sessions within your selected date range.</div>
         <div>Use the preview above to verify your data before downloading.</div>
       </div>
     </div>

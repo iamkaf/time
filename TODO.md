@@ -31,8 +31,9 @@
   - [x] URL parameter integration for pre-selected date ranges
   - [x] Reset functionality with URL state clearing
   - [x] Comprehensive validation and error handling
-  - [ ] Export history tracking
-  - [ ] Additional formats (JSON, PDF)
+  - [x] Export history tracking
+  - [x] Additional formats (JSON, PDF)
+  - [x] Format selection UI with progressive loading
 
 ### Changelog Page Enhancements
 - [ ] Design changelog entry component

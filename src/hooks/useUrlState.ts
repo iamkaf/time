@@ -232,18 +232,24 @@ export function useUrlState(options: UseUrlStateOptions = {}) {
     // Clear incompatible filters if needed
     if (preserveFilters) {
       const compatibleFilters = (filterCompatibility as Record<string, string[]>)[newTab] || []
+      // Collect keys to delete first to avoid iteration issues
+      const keysToDelete: string[] = []
       for (const [key] of params.entries()) {
         if (key !== 'tab' && !compatibleFilters.includes(key)) {
-          params.delete(key)
+          keysToDelete.push(key)
         }
       }
+      // Then delete them
+      keysToDelete.forEach(key => params.delete(key))
     } else {
       // Clear all filters except tab
+      const keysToDelete: string[] = []
       for (const [key] of params.entries()) {
         if (key !== 'tab') {
-          params.delete(key)
+          keysToDelete.push(key)
         }
       }
+      keysToDelete.forEach(key => params.delete(key))
     }
 
     const url = params.toString() ? `?${params.toString()}` : window.location.pathname

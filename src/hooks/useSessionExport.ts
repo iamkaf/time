@@ -6,6 +6,7 @@ import { useSessions } from './useSessions'
 import { useExportHistory } from './useExportHistory'
 import { formatDuration } from '@/lib/utils/time'
 import type { Session } from '@/types/supabase'
+import type { ExportFormat } from '@/components/export/format-selector'
 
 export interface ExportField {
   key: keyof Session | 'displayName' | 'formattedDuration'
@@ -124,6 +125,7 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
   
   const [dateRange, setDateRange] = useState<DateRange>(getInitialDateRange())
   const [exportFields, setExportFields] = useState<ExportField[]>(DEFAULT_FIELDS)
+  const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('csv')
   const [isExporting, setIsExporting] = useState(false)
 
   // Filter sessions by date range
@@ -158,6 +160,11 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
     setDateRange(prev => ({ ...prev, ...newRange }))
   }, [])
 
+  // Update selected format
+  const updateFormat = useCallback((format: ExportFormat) => {
+    setSelectedFormat(format)
+  }, [])
+
   // Generate CSV content
   const generateCsv = useCallback((sessions: Session[], fields: ExportField[]): string => {
     if (!sessions.length || !fields.length) return ''
@@ -188,24 +195,180 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
     return metadata + headers + '\n' + rows.join('\n')
   }, [dateRange])
 
-  // Download CSV
-  const downloadCsv = useCallback(async () => {
+  // Generate JSON content
+  const generateJson = useCallback((sessions: Session[], fields: ExportField[]): string => {
+    if (!sessions.length || !fields.length) return ''
+
+    const enabledFields = fields.filter(f => f.enabled)
+    const now = new Date()
+    
+    // Create JSON structure with metadata
+    const jsonData = {
+      metadata: {
+        exportedAt: format(now, 'yyyy-MM-dd HH:mm:ss'),
+        totalSessions: sessions.length,
+        dateRange: {
+          start: format(new Date(dateRange.startDate), 'yyyy-MM-dd'),
+          end: format(new Date(dateRange.endDate), 'yyyy-MM-dd')
+        },
+        fields: enabledFields.map(f => f.label)
+      },
+      sessions: sessions.map(session => {
+        const formatted: Record<string, string | number | string[] | null> = {}
+        
+        enabledFields.forEach(field => {
+          switch (field.key) {
+            case 'displayName':
+              formatted[field.label] = session.name || 'Untitled Session'
+              break
+            case 'start_timestamp':
+              formatted[field.label] = session.start_timestamp || null
+              break
+            case 'end_timestamp':
+              formatted[field.label] = session.end_timestamp || null
+              break
+            case 'formattedDuration':
+              formatted[field.label] = session.duration_seconds 
+                ? formatDuration(session.duration_seconds)
+                : null
+              break
+            case 'duration_seconds':
+              formatted[field.label] = session.duration_seconds || null
+              break
+            case 'tags':
+              formatted[field.label] = session.tags || []
+              break
+            case 'created_at':
+              formatted[field.label] = session.created_at || null
+              break
+            default:
+              const value = session[field.key as keyof Session]
+              formatted[field.label] = value || null
+          }
+        })
+        
+        return formatted
+      })
+    }
+
+    return JSON.stringify(jsonData, null, 2)
+  }, [dateRange])
+
+  // Generate PDF content (dynamically imported)
+  const generatePdf = useCallback(async (sessions: Session[], fields: ExportField[]): Promise<Blob> => {
+    if (!sessions.length || !fields.length) {
+      throw new Error('No data to export')
+    }
+
+    // Dynamic import to avoid SSR issues
+    const { jsPDF } = await import('jspdf')
+    const { default: autoTable } = await import('jspdf-autotable')
+
+    const enabledFields = fields.filter(f => f.enabled)
+    const doc = new jsPDF()
+
+    // Add title and metadata
+    doc.setFontSize(16)
+    doc.text('TIME App - Session Export', 20, 20)
+    
+    doc.setFontSize(10)
+    doc.text(`Generated: ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`, 20, 30)
+    doc.text(`Total Sessions: ${sessions.length}`, 20, 37)
+    doc.text(`Date Range: ${format(new Date(dateRange.startDate), 'yyyy-MM-dd')} to ${format(new Date(dateRange.endDate), 'yyyy-MM-dd')}`, 20, 44)
+
+    // Prepare table data
+    const headers = enabledFields.map(field => field.label)
+    const rows = sessions.map(session => {
+      return enabledFields.map(field => {
+        switch (field.key) {
+          case 'displayName':
+            return session.name || 'Untitled Session'
+          case 'start_timestamp':
+            return session.start_timestamp 
+              ? format(new Date(session.start_timestamp), 'MMM d, yyyy HH:mm')
+              : ''
+          case 'end_timestamp':
+            return session.end_timestamp 
+              ? format(new Date(session.end_timestamp), 'MMM d, yyyy HH:mm')
+              : ''
+          case 'formattedDuration':
+            return session.duration_seconds 
+              ? formatDuration(session.duration_seconds)
+              : ''
+          case 'tags':
+            return session.tags && session.tags.length > 0
+              ? session.tags.join(', ')
+              : ''
+          case 'created_at':
+            return session.created_at 
+              ? format(new Date(session.created_at), 'MMM d, yyyy HH:mm')
+              : ''
+          default:
+            const value = session[field.key as keyof Session]
+            return value ? String(value) : ''
+        }
+      })
+    })
+
+    // Add table using autoTable
+    autoTable(doc, {
+      head: [headers],
+      body: rows,
+      startY: 55,
+      styles: {
+        fontSize: 8,
+        cellPadding: 3,
+      },
+      headStyles: {
+        fillColor: [16, 185, 129], // emerald-500
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+      },
+      alternateRowStyles: {
+        fillColor: [249, 250, 251], // gray-50
+      },
+      margin: { top: 55, left: 20, right: 20 },
+    })
+
+    // Return as blob
+    return new Blob([doc.output('arraybuffer')], { type: 'application/pdf' })
+  }, [dateRange])
+
+  // Download export in selected format
+  const downloadExport = useCallback(async () => {
     if (!filteredSessions.length || !enabledFields.length) return
 
     setIsExporting(true)
     
     try {
-      // Generate CSV content
-      const csvContent = generateCsv(filteredSessions, exportFields)
-      
-      // Create blob and download
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-      const url = URL.createObjectURL(blob)
-      
-      // Generate filename
-      const fileName = `time-sessions-${format(new Date(), 'yyyy-MM-dd')}.csv`
+      let blob: Blob
+      let fileName: string
+
+      // Generate content based on selected format
+      switch (selectedFormat) {
+        case 'csv': {
+          const csvContent = generateCsv(filteredSessions, exportFields)
+          blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+          fileName = `time-sessions-${format(new Date(), 'yyyy-MM-dd')}.csv`
+          break
+        }
+        case 'json': {
+          const jsonContent = generateJson(filteredSessions, exportFields)
+          blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' })
+          fileName = `time-sessions-${format(new Date(), 'yyyy-MM-dd')}.json`
+          break
+        }
+        case 'pdf': {
+          blob = await generatePdf(filteredSessions, exportFields)
+          fileName = `time-sessions-${format(new Date(), 'yyyy-MM-dd')}.pdf`
+          break
+        }
+        default:
+          throw new Error(`Unsupported export format: ${selectedFormat}`)
+      }
       
       // Create download link
+      const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
       link.download = fileName
@@ -222,7 +385,7 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
       try {
         await createExportHistory({
           exportType: 'session_data', 
-          format: 'csv',
+          format: selectedFormat,
           sessionCount: filteredSessions.length,
           dateRangeStart: new Date(dateRange.startDate),
           dateRangeEnd: new Date(dateRange.endDate),
@@ -235,17 +398,18 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
         console.warn('Failed to track export history:', historyError)
       }
     } catch (error) {
-      console.error('Failed to export CSV:', error)
+      console.error(`Failed to export ${selectedFormat.toUpperCase()}:`, error)
       throw error
     } finally {
       setIsExporting(false)
     }
-  }, [filteredSessions, enabledFields, exportFields, generateCsv, createExportHistory, dateRange])
+  }, [filteredSessions, enabledFields, exportFields, selectedFormat, generateCsv, generateJson, generatePdf, createExportHistory, dateRange])
 
   // Reset to defaults
   const resetToDefaults = useCallback(() => {
     setDateRange(getDefaultDateRange())
     setExportFields(DEFAULT_FIELDS)
+    setSelectedFormat('csv')
   }, [])
 
   return {
@@ -258,12 +422,14 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
     dateRange,
     exportFields,
     enabledFields,
+    selectedFormat,
     isExporting,
     
     // Actions
     updateField,
     updateDateRange,
-    downloadCsv,
+    updateFormat,
+    downloadExport,
     resetToDefaults,
     
     // Computed
