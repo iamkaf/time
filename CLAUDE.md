@@ -23,9 +23,21 @@ Both server scripts handle PID tracking, graceful shutdown, and port 3000 cleanu
 ### Core Configuration
 - `package.json` - Dependencies and scripts (includes db:setup, db:reset, db:types)
 - `.env.local` - Environment variables (never commit)
+- `.env.example` - Environment variables template
 - `supabase/config.toml` - Supabase CLI configuration
 - `supabase/migrations/` - Database migration files
 - `middleware.ts` - Auth middleware for route protection
+
+### Environment Variables
+Required environment variables in `.env.local`:
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (server-side)
+- `SUPABASE_AUTH_EXTERNAL_DISCORD_CLIENT_ID` - Discord OAuth client ID
+- `SUPABASE_AUTH_EXTERNAL_DISCORD_SECRET` - Discord OAuth client secret
+- `NEXT_PUBLIC_SITE_URL` - Site URL for OAuth callbacks
+  - Development: `http://localhost:3000`
+  - Production: `https://time.iamkaf.com`
 
 ### Authentication & Database
 - `src/lib/supabase/client.ts` - Browser Supabase client
