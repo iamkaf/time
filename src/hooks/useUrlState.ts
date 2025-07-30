@@ -248,7 +248,7 @@ export function useUrlState(options: UseUrlStateOptions = {}) {
 
     const url = params.toString() ? `?${params.toString()}` : window.location.pathname
     router.replace(url, { scroll: false })
-  }, [validTabs, filterCompatibility, router])
+  }, [validTabs, filterCompatibility, router, searchParams])
 
   // Set individual parameter
   const setParameter = useCallback((key: string, value: unknown) => {

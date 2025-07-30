@@ -163,6 +163,23 @@ export function useSessions() {
     }
   })
 
+  // Bulk delete sessions
+  const bulkDeleteSessions = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase
+        .from('sessions')
+        .delete()
+        .in('id', ids)
+
+      if (error) throw error
+      return ids.length
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sessions'] })
+      queryClient.invalidateQueries({ queryKey: ['session-stats'] })
+    }
+  })
+
   return {
     sessions,
     isLoading,
@@ -170,9 +187,11 @@ export function useSessions() {
     createSession: createSession.mutateAsync,
     updateSession: updateSession.mutateAsync,
     deleteSession: deleteSession.mutateAsync,
+    bulkDeleteSessions: bulkDeleteSessions.mutateAsync,
     isCreating: createSession.isPending,
     isUpdating: updateSession.isPending,
-    isDeleting: deleteSession.isPending
+    isDeleting: deleteSession.isPending,
+    isBulkDeleting: bulkDeleteSessions.isPending
   }
 }
 

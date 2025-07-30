@@ -7,7 +7,7 @@
   - [x] Full paginated session history
   - [x] Advanced filtering (date range, tags, duration)
   - [x] Sort by date, duration, name
-  - [ ] Bulk actions (delete multiple)
+  - [x] Bulk actions (delete multiple)
   - [x] Search functionality
 - [x] **Analytics View**:
   - [x] Analytics infrastructure and data processing

@@ -111,7 +111,7 @@ export function ExportPreview({ sessions, enabledFields, isLoading = false }: Ex
             {/* Table Header */}
             <div className="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-b border-gray-200 dark:border-gray-600">
               <div className="flex items-center space-x-4 text-xs font-medium text-gray-700 dark:text-gray-300 overflow-x-auto">
-                {enabledFields.map((field, index) => (
+                {enabledFields.map((field) => (
                   <div
                     key={field.key as string}
                     className={`flex-shrink-0 ${
@@ -132,7 +132,7 @@ export function ExportPreview({ sessions, enabledFields, isLoading = false }: Ex
                   className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
                 >
                   <div className="flex items-center space-x-4 text-xs text-gray-900 dark:text-gray-100 overflow-x-auto">
-                    {enabledFields.map((field, index) => (
+                    {enabledFields.map((field) => (
                       <div
                         key={field.key as string}
                         className={`flex-shrink-0 ${

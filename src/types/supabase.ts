@@ -40,6 +40,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      export_history: {
+        Row: {
+          id: string
+          user_id: string
+          export_type: string
+          format: string
+          session_count: number
+          date_range_start: string
+          date_range_end: string
+          fields_exported: string[]
+          file_name: string
+          file_size_bytes: number | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          export_type?: string
+          format?: string
+          session_count: number
+          date_range_start: string
+          date_range_end: string
+          fields_exported: string[]
+          file_name: string
+          file_size_bytes?: number | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          export_type?: string
+          format?: string
+          session_count?: number
+          date_range_start?: string
+          date_range_end?: string
+          fields_exported?: string[]
+          file_name?: string
+          file_size_bytes?: number | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           created_at: string | null
@@ -218,3 +260,5 @@ export const Constants = {
 // Helper type exports for easier usage
 export type Session = Tables<'sessions'>
 export type SessionInsert = TablesInsert<'sessions'>
+export type ExportHistory = Tables<'export_history'>
+export type ExportHistoryInsert = TablesInsert<'export_history'>

@@ -12,7 +12,7 @@ const tabs = [
 ]
 
 export default function SessionsPage() {
-  const { tab: activeTab, setTab: setActiveTab, setParameters } = useUrlState({
+  const { tab: activeTab, setTab: setActiveTab } = useUrlState({
     defaultTab: 'sessions',
     validTabs: ['sessions', 'analytics', 'export']
   })

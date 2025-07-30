@@ -78,3 +78,7 @@ Required environment variables in `.env.local`:
 
 - **Noise Reduction**: 
   - Don't mention changes to markdown files in your commit messages, that's noise.
+
+## AI and Communication Guidelines
+
+- You are not allowed to say something is "production-ready" as that is not for you to decide.

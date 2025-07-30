@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { format } from 'date-fns'
 import { useSessions } from './useSessions'
+import { useExportHistory } from './useExportHistory'
 import { formatDuration } from '@/lib/utils/time'
 import type { Session } from '@/types/supabase'
 
@@ -105,6 +106,7 @@ function formatSessionForCsv(session: Session, enabledFields: ExportField[]): Re
 
 export function useSessionExport(initialDateRange?: Partial<DateRange>) {
   const { sessions, isLoading } = useSessions()
+  const { createExportHistory } = useExportHistory()
   
   // Initialize date range with URL parameters if provided, otherwise use defaults
   const getInitialDateRange = (): DateRange => {
@@ -200,10 +202,13 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
       const url = URL.createObjectURL(blob)
       
+      // Generate filename
+      const fileName = `time-sessions-${format(new Date(), 'yyyy-MM-dd')}.csv`
+      
       // Create download link
       const link = document.createElement('a')
       link.href = url
-      link.download = `time-sessions-${format(new Date(), 'yyyy-MM-dd')}.csv`
+      link.download = fileName
       
       // Trigger download
       document.body.appendChild(link)
@@ -212,13 +217,30 @@ export function useSessionExport(initialDateRange?: Partial<DateRange>) {
       
       // Clean up
       URL.revokeObjectURL(url)
+
+      // Track export in history
+      try {
+        await createExportHistory({
+          exportType: 'session_data', 
+          format: 'csv',
+          sessionCount: filteredSessions.length,
+          dateRangeStart: new Date(dateRange.startDate),
+          dateRangeEnd: new Date(dateRange.endDate),
+          fieldsExported: enabledFields.map(f => f.label),
+          fileName,
+          fileSizeBytes: blob.size
+        })
+      } catch (historyError) {
+        // Don't fail the export if history tracking fails
+        console.warn('Failed to track export history:', historyError)
+      }
     } catch (error) {
       console.error('Failed to export CSV:', error)
       throw error
     } finally {
       setIsExporting(false)
     }
-  }, [filteredSessions, enabledFields, exportFields, generateCsv])
+  }, [filteredSessions, enabledFields, exportFields, generateCsv, createExportHistory, dateRange])
 
   // Reset to defaults
   const resetToDefaults = useCallback(() => {

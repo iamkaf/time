@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { format } from 'date-fns'
-import { Edit, Trash2, MoreVertical, Search, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { Edit, Trash2, MoreVertical, Search, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Square, X } from 'lucide-react'
 import { useSessions } from '@/hooks/useSessions'
 import { EditSessionModal } from './edit-session-modal'
 import { DeleteSessionModal } from './delete-session-modal'
+import { BulkDeleteSessionsModal } from './bulk-delete-modal'
+import { Checkbox } from '@/components/ui/checkbox'
 import { formatDuration } from '@/lib/utils/time'
 import type { Session } from '@/types/supabase'
 
@@ -25,6 +27,12 @@ export function EnhancedSessionsList() {
   const [sortField, setSortField] = useState<SortField>('date')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
   const [currentPage, setCurrentPage] = useState(1)
+  
+  // Selection state
+  const [isSelectionMode, setIsSelectionMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false)
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null)
 
   // Filtered and sorted sessions
   const filteredAndSortedSessions = useMemo(() => {
@@ -131,6 +139,101 @@ export function EnhancedSessionsList() {
     return sortDirection === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />
   }
 
+  // Selection handlers
+  const handleSelectSession = useCallback((sessionId: string, checked: boolean) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev)
+      if (checked) {
+        newSet.add(sessionId)
+      } else {
+        newSet.delete(sessionId)
+      }
+      return newSet
+    })
+  }, [])
+
+  const handleSelectAll = useCallback((checked: boolean) => {
+    if (checked) {
+      const allIds = new Set(currentSessions.map(session => session.id))
+      setSelectedIds(allIds)
+    } else {
+      setSelectedIds(new Set())
+    }
+  }, [currentSessions])
+
+  const enterSelectionMode = () => {
+    setIsSelectionMode(true)
+    setDropdownOpen(null)
+  }
+
+  const exitSelectionMode = () => {
+    setIsSelectionMode(false)
+    setSelectedIds(new Set())
+  }
+
+  const handleBulkDelete = () => {
+    if (selectedIds.size > 0) {
+      setShowBulkDeleteModal(true)
+    }
+  }
+
+  const handleBulkDeleteComplete = () => {
+    setShowBulkDeleteModal(false)
+    exitSelectionMode()
+  }
+
+  // Calculate selection state
+  const selectedOnCurrentPage = currentSessions.filter(session => selectedIds.has(session.id)).length
+  const allOnPageSelected = currentSessions.length > 0 && selectedOnCurrentPage === currentSessions.length
+  const someOnPageSelected = selectedOnCurrentPage > 0 && selectedOnCurrentPage < currentSessions.length
+
+  // Handle keyboard shortcuts
+  const handleSessionClick = useCallback((
+    e: React.MouseEvent,
+    session: Session,
+    index: number
+  ) => {
+    if (!isSelectionMode) return
+
+    const isShiftClick = e.shiftKey
+    const isCtrlOrCmdClick = e.ctrlKey || e.metaKey
+
+    if (isShiftClick && lastSelectedIndex !== null) {
+      // Range selection with Shift+click
+      const start = Math.min(lastSelectedIndex, index)
+      const end = Math.max(lastSelectedIndex, index)
+      const newSelectedIds = new Set(selectedIds)
+      
+      for (let i = start; i <= end; i++) {
+        if (currentSessions[i]) {
+          newSelectedIds.add(currentSessions[i].id)
+        }
+      }
+      
+      setSelectedIds(newSelectedIds)
+    } else if (isCtrlOrCmdClick) {
+      // Toggle selection with Ctrl/Cmd+click
+      handleSelectSession(session.id, !selectedIds.has(session.id))
+      setLastSelectedIndex(index)
+    } else {
+      // Regular click - select only this item
+      setSelectedIds(new Set([session.id]))
+      setLastSelectedIndex(index)
+    }
+  }, [isSelectionMode, lastSelectedIndex, selectedIds, currentSessions, handleSelectSession])
+
+  // Handle escape key to exit selection mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isSelectionMode) {
+        exitSelectionMode()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isSelectionMode])
+
   if (isLoading) {
     return (
       <div className="animate-pulse space-y-4">
@@ -145,16 +248,27 @@ export function EnhancedSessionsList() {
     <>
       {/* Search and Controls */}
       <div className="mb-6 space-y-4">
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Search sessions by name or tags..."
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-          />
+        {/* Search Bar and Selection Mode */}
+        <div className="flex gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search sessions by name or tags..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+          </div>
+          {!isSelectionMode && currentSessions.length > 0 && (
+            <button
+              onClick={enterSelectionMode}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+            >
+              <Square className="w-4 h-4 mr-2" />
+              Select
+            </button>
+          )}
         </div>
 
         {/* Sort Controls */}
@@ -199,6 +313,40 @@ export function EnhancedSessionsList() {
             `Showing ${filteredAndSortedSessions.length} of ${sessions.length} sessions`
           )}
         </div>
+
+        {/* Bulk Actions Bar */}
+        {isSelectionMode && (
+          <div className="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+            <div className="flex items-center space-x-4">
+              <Checkbox
+                checked={allOnPageSelected}
+                indeterminate={someOnPageSelected}
+                onChange={handleSelectAll}
+                aria-label="Select all sessions on this page"
+              />
+              <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                {selectedIds.size} selected
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleBulkDelete}
+                disabled={selectedIds.size === 0}
+                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Trash2 className="w-4 h-4 mr-1.5" />
+                Delete Selected
+              </button>
+              <button
+                onClick={exitSelectionMode}
+                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+              >
+                <X className="w-4 h-4 mr-1.5" />
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Sessions List */}
@@ -220,16 +368,28 @@ export function EnhancedSessionsList() {
       ) : (
         <>
           <div className="space-y-3 mb-6" onClick={handleClickOutside}>
-            {currentSessions.map((session) => (
+            {currentSessions.map((session, index) => (
               <div
                 key={session.id}
-                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                onClick={(e) => handleSessionClick(e, session, index)}
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <h4 className="font-medium text-gray-900 dark:text-white truncate">
-                      {session.name || 'Untitled Session'}
-                    </h4>
+                <div className="flex items-center flex-1 min-w-0">
+                  {isSelectionMode && (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedIds.has(session.id)}
+                        onChange={(checked) => handleSelectSession(session.id, checked)}
+                        className="mr-4 flex-shrink-0"
+                        aria-label={`Select ${session.name || 'Untitled Session'}`}
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <h4 className="font-medium text-gray-900 dark:text-white truncate">
+                        {session.name || 'Untitled Session'}
+                      </h4>
                     {session.tags && session.tags.length > 0 && (
                       <div className="flex space-x-1 flex-shrink-0">
                         {session.tags.slice(0, 3).map((tag: string) => (
@@ -247,16 +407,17 @@ export function EnhancedSessionsList() {
                         )}
                       </div>
                     )}
-                  </div>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>
-                      {format(new Date(session.start_timestamp), 'MMM d, yyyy • h:mm a')}
-                    </span>
-                    {session.end_timestamp && (
+                    </div>
+                    <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                       <span>
-                        → {format(new Date(session.end_timestamp), 'h:mm a')}
+                        {format(new Date(session.start_timestamp), 'MMM d, yyyy • h:mm a')}
                       </span>
-                    )}
+                      {session.end_timestamp && (
+                        <span>
+                          → {format(new Date(session.end_timestamp), 'h:mm a')}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 
@@ -346,6 +507,15 @@ export function EnhancedSessionsList() {
         isOpen={!!deletingSession}
         onClose={() => setDeletingSession(null)}
         session={deletingSession}
+      />
+
+      {/* Bulk Delete Sessions Modal */}
+      <BulkDeleteSessionsModal
+        isOpen={showBulkDeleteModal}
+        onClose={() => setShowBulkDeleteModal(false)}
+        selectedIds={Array.from(selectedIds)}
+        sessions={sessions.filter(s => selectedIds.has(s.id))}
+        onComplete={handleBulkDeleteComplete}
       />
     </>
   )
