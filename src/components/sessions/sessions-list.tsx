@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { format } from 'date-fns'
 import { Edit, Trash2, MoreVertical } from 'lucide-react'
 import { useSessions } from '@/hooks/useSessions'
+import { useTimeFormat } from '@/hooks/useTimeFormat'
 import { EditSessionModal } from './edit-session-modal'
 import { DeleteSessionModal } from './delete-session-modal'
 import { formatDuration } from '@/lib/utils/time'
@@ -15,6 +15,7 @@ interface SessionsListProps {
 
 export function SessionsList({ limit = 10 }: SessionsListProps) {
   const { sessions, isLoading } = useSessions()
+  const { formatTime, formatDateTime } = useTimeFormat()
   const [editingSession, setEditingSession] = useState<Session | null>(null)
   const [deletingSession, setDeletingSession] = useState<Session | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null)
@@ -102,11 +103,11 @@ export function SessionsList({ limit = 10 }: SessionsListProps) {
               </div>
               <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                 <span>
-                  {format(new Date(session.start_timestamp), 'MMM d, yyyy • h:mm a')}
+                  {formatDateTime(new Date(session.start_timestamp))}
                 </span>
                 {session.end_timestamp && (
                   <span>
-                    → {format(new Date(session.end_timestamp), 'h:mm a')}
+                    → {formatTime(new Date(session.end_timestamp))}
                   </span>
                 )}
               </div>

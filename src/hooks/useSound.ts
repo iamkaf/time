@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from 'react'
 import { Howl } from 'howler'
+import { useSettings } from './useSettings'
 
 type SoundName = 'start' | 'stop' | 'notify'
 
@@ -17,6 +18,7 @@ const soundConfigs: Record<SoundName, SoundConfig> = {
 }
 
 export function useSound() {
+  const { settings, isLoaded } = useSettings()
   const soundsRef = useRef<Record<SoundName, Howl | null>>({
     start: null,
     stop: null,
@@ -25,7 +27,7 @@ export function useSound() {
 
   // Initialize sounds on client side only
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined' || !isLoaded) return
 
     Object.entries(soundConfigs).forEach(([name, config]) => {
       const soundName = name as SoundName
@@ -35,9 +37,12 @@ export function useSound() {
         fetch(config.src, { method: 'HEAD' })
           .then(response => {
             if (response.ok) {
+              // Apply master volume to base volume
+              const finalVolume = (config.volume || 0.5) * settings.masterVolume
+              
               soundsRef.current[soundName] = new Howl({
                 src: [config.src],
-                volume: config.volume || 0.5,
+                volume: finalVolume,
                 preload: true,
                 onloaderror: (id, error) => {
                   console.warn(`Failed to load sound ${name}:`, error)
@@ -62,10 +67,30 @@ export function useSound() {
         }
       })
     }
-  }, [])
+  }, [isLoaded, settings.masterVolume])
+
+  // Update volume when master volume changes
+  useEffect(() => {
+    if (!isLoaded) return
+
+    Object.entries(soundConfigs).forEach(([name, config]) => {
+      const soundName = name as SoundName
+      const sound = soundsRef.current[soundName]
+      
+      if (sound) {
+        const finalVolume = (config.volume || 0.5) * settings.masterVolume
+        sound.volume(finalVolume)
+      }
+    })
+  }, [settings.masterVolume, isLoaded])
 
   const playSound = useCallback(async (soundName: SoundName) => {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined' || !isLoaded) return
+
+    // Check if this specific sound is enabled
+    if (!settings.soundEnabled[soundName]) {
+      return
+    }
 
     const sound = soundsRef.current[soundName]
     
@@ -84,7 +109,7 @@ export function useSound() {
         console.warn(`Failed to play sound ${soundName}:`, error)
       }
     }
-  }, [])
+  }, [settings.soundEnabled, isLoaded])
 
   return { playSound }
 }

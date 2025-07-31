@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useSound } from './useSound'
+import { useSettings } from './useSettings'
 
 const TIMER_STORAGE_KEY = 'time-app-timer-state'
 
@@ -149,6 +150,7 @@ export function useTimer() {
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const { playSound } = useSound()
+  const { settings, isLoaded: settingsLoaded } = useSettings()
 
   // Save state to localStorage whenever it changes
   useEffect(() => {
@@ -201,11 +203,13 @@ export function useTimer() {
       startTime: actualStartTime,
       elapsedTime: initialElapsedTime,
       pausedDuration: 0,
-      pauseStartTime: null
+      pauseStartTime: null,
+      // Use default session name if current name is empty and settings are loaded
+      currentSessionName: prev.currentSessionName || (settingsLoaded && settings.defaultSessionName ? settings.defaultSessionName : prev.currentSessionName)
     }))
 
     await playSound('start')
-  }, [state.isRunning, playSound])
+  }, [state.isRunning, playSound, settingsLoaded, settings.defaultSessionName])
 
   const stopTimer = useCallback(async () => {
     if (!state.isRunning || !state.startTime) return
@@ -235,13 +239,22 @@ export function useTimer() {
 
     await playSound('stop')
 
+    // Add development tag if not in production
+    let finalTags = state.currentSessionTags
+    if (process.env.NODE_ENV !== 'production') {
+      const devTag = '_Development'
+      if (!finalTags.includes(devTag)) {
+        finalTags = [...finalTags, devTag]
+      }
+    }
+
     // Return session data for saving
     return {
       startTime: state.startTime,
       endTime,
       durationSeconds: finalElapsedTime,
       name: state.currentSessionName || null,
-      tags: state.currentSessionTags.length > 0 ? state.currentSessionTags : null
+      tags: finalTags.length > 0 ? finalTags : null
     }
   }, [state.isRunning, state.startTime, state.isPaused, state.pauseStartTime, state.pausedDuration, state.currentSessionName, state.currentSessionTags, playSound])
 

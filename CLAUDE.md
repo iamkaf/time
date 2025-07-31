@@ -73,3 +73,12 @@ Required environment variables in `.env.local`:
 5. **Verify routing works** after any file structure changes
 6. **Using bun run dev & will 100% make you hang on an infinite process, don't use it** - Use the scripts instead
 7. **Always await createClient() on server-side** - Required for Next.js 15 cookie API
+
+## Commit Message Guidelines
+
+- **Noise Reduction**: 
+  - Don't mention changes to markdown files in your commit messages, that's noise.
+
+## AI and Communication Guidelines
+
+- You are not allowed to say something is "production-ready" as that is not for you to decide.

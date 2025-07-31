@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useTimer } from '@/hooks/useTimer'
 import { useSessionTags } from '@/hooks/useSessions'
+import { useSettings } from '@/hooks/useSettings'
 import { Play, Square, RotateCcw, Pause, Clock } from 'lucide-react'
 
 interface TimerProps {
@@ -38,8 +39,10 @@ export function Timer({ onSessionComplete }: TimerProps) {
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1)
   const [showStartTimePicker, setShowStartTimePicker] = useState(false)
   const [customStartTime, setCustomStartTime] = useState<Date | null>(null)
+  const [userHasClearedSessionName, setUserHasClearedSessionName] = useState(false)
   const tagInputRef = useRef<HTMLInputElement>(null)
   const { data: existingTags = [] } = useSessionTags()
+  const { settings, isLoaded: settingsLoaded } = useSettings()
 
   // Filter suggestions based on input
   const tagSuggestions = existingTags.filter(tag =>
@@ -61,6 +64,18 @@ export function Timer({ onSessionComplete }: TimerProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Apply default session name when settings load and session name is empty (but only if user hasn't intentionally cleared it)
+  useEffect(() => {
+    if (settingsLoaded && 
+        settings.defaultSessionName && 
+        !currentSessionName && 
+        !isRunning && 
+        isHydrated &&
+        !userHasClearedSessionName) {
+      updateSessionName(settings.defaultSessionName)
+    }
+  }, [settingsLoaded, settings.defaultSessionName, currentSessionName, isRunning, isHydrated, userHasClearedSessionName, updateSessionName])
+
   const handleStart = async () => {
     await startTimer(customStartTime || undefined)
     // Clear custom start time after using it
@@ -76,11 +91,18 @@ export function Timer({ onSessionComplete }: TimerProps) {
     // Reset only non-session UI state after stopping
     setCustomStartTime(null)
     setShowStartTimePicker(false)
+    setUserHasClearedSessionName(false) // Reset the flag so default name can be applied to next session
   }
 
   const handleReset = () => {
     resetTimer()
     setTagInput('')
+    setUserHasClearedSessionName(false) // Reset the flag so default name can be applied
+    
+    // Apply default tags if they exist
+    if (settingsLoaded && settings.defaultTags && settings.defaultTags.length > 0) {
+      updateSessionTags(settings.defaultTags)
+    }
   }
 
   const handlePause = async () => {
@@ -260,7 +282,14 @@ export function Timer({ onSessionComplete }: TimerProps) {
             id="sessionName"
             type="text"
             value={currentSessionName}
-            onChange={(e) => updateSessionName(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value
+              updateSessionName(newValue)
+              // Track if user has intentionally cleared the field
+              if (newValue === '' && currentSessionName !== '') {
+                setUserHasClearedSessionName(true)
+              }
+            }}
             placeholder="What are you working on?"
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white text-sm"
           />

@@ -2,25 +2,43 @@
 
 ## 🚀 Future Development Roadmap
 
-### Sessions Page Enhancements
-- [ ] **Sessions View**:
-  - [ ] Full paginated session history
-  - [ ] Advanced filtering (date range, tags, duration)
-  - [ ] Sort by date, duration, name
-  - [ ] Bulk actions (delete multiple)
-  - [ ] Search functionality
-- [ ] **Details View**:
-  - [ ] Time distribution charts (daily, weekly, monthly)
-  - [ ] Tag analytics and breakdowns
-  - [ ] Productivity trends
-  - [ ] Session duration distribution
-  - [ ] Peak activity hours heatmap
-- [ ] **Export View**:
-  - [ ] Date range selector
-  - [ ] Format options (CSV, JSON, PDF)
-  - [ ] Field selection for export
-  - [ ] Preview before download
-  - [ ] Export history
+### Sessions Dashboard Enhancements
+- [x] **Sessions View**:
+  - [x] Full paginated session history
+  - [x] Advanced filtering (date range, tags, duration)
+  - [x] Sort by date, duration, name with URL state persistence
+  - [x] Bulk actions (delete multiple sessions)
+  - [x] Search functionality with debouncing
+  - [x] Tag-based filtering with multi-select interface
+  - [x] Generic TypeScript URL state management
+  - [x] Keyboard shortcuts for multi-selection
+  - [x] Clear filters functionality
+- [x] **Analytics View**:
+  - [x] Analytics infrastructure and data processing
+  - [x] Core analytics hook with date filtering and view periods  
+  - [x] Chart theming system and responsive design utilities
+  - [x] Time distribution charts (daily, weekly, monthly)
+  - [x] Tag analytics and breakdowns
+  - [x] Productivity trends visualization
+  - [x] Session duration distribution histogram
+  - [x] Peak activity hours heatmap
+  - [x] URL state management for date range persistence
+  - [x] Interactive controls with chart type selection
+  - [x] Export to CSV navigation integration
+  - [x] Reset functionality with complete state clearing
+  - [x] Overview statistics dashboard
+- [x] **Export View**:
+  - [x] Date range selector with quick presets
+  - [x] CSV format with professional metadata headers
+  - [x] Field selection for export with presets
+  - [x] Live preview before download
+  - [x] URL parameter integration for pre-selected date ranges
+  - [x] Reset functionality with URL state clearing
+  - [x] Comprehensive validation and error handling
+  - [x] Export history tracking
+  - [x] Additional formats (JSON, PDF)
+  - [x] Format selection UI with progressive loading
+  - [x] Test JSON and PDF export functionality
 
 ### Changelog Page Enhancements
 - [ ] Design changelog entry component
@@ -31,17 +49,17 @@
 - [ ] Load changelog data from JSON or Markdown
 
 ### Settings Page Enhancements
-- [ ] **General Settings**:
-  - [ ] Default session name template
-  - [ ] Default tags
-  - [ ] Time format preferences (12/24 hour)
-  - [ ] Start of week preference
+- [x] **General Settings**:
+  - [x] Default session name template
+  - [x] Default tags
+  - [x] Time format preferences (12/24 hour)
+  - [x] Start of week preference
 - [ ] **Appearance**:
   - [ ] Accent color selection
   - [ ] Font size preferences
-- [ ] **Sound Settings**:
-  - [ ] Master volume control
-  - [ ] Individual sound toggles
+- [x] **Sound Settings**:
+  - [x] Master volume control
+  - [x] Individual sound toggles
   - [ ] Custom sound upload (future)
 - [ ] **Account**:
   - [ ] Profile information
@@ -66,6 +84,9 @@
 - [ ] Session templates/presets
 - [ ] Keyboard shortcuts throughout app
 - [ ] Command palette (cmd+k)
+- [x] **Development Environment Tagging**:
+  - [x] Automatic "_Development" tag for non-production sessions
+  - [x] Environment-aware session categorization
 
 ### Performance & Polish
 - [ ] Implement virtual scrolling for large lists
@@ -73,6 +94,18 @@
 - [ ] Progressive Web App (PWA) features
 - [ ] Automated backups
 - [ ] Data sync conflict resolution
+- [x] **Cross-platform Scrollbar Consistency**:
+  - [x] Prevent Windows scrollbar layout shifts
+  - [x] Consistent scrollbar styling across browsers
+  - [x] Theme-aware scrollbar colors
+  - [x] Reserved scrollbar gutter for stable layouts
+- [x] **UI/UX Enhancements**:
+  - [x] Search debouncing to prevent excessive API calls
+  - [x] Sort button state synchronization with URL
+  - [x] Tag filtering with expandable interface
+  - [x] Immediate local feedback for search input
+  - [x] Clear all filters functionality
+  - [x] Bulk selection with keyboard shortcuts
 
 ## Technical Stack
 - **Runtime**: Bun
@@ -84,7 +117,7 @@
 - **Date/Time**: date-fns, React Aria DatePicker
 - **Theme**: next-themes (SSR-safe)
 - **Audio**: Howler.js
-- **Charts**: (TBD - Recharts, Chart.js, or D3.js)
+- **Charts**: Recharts (React-based charting library)
 
 ## Development Principles
 1. **Preserve existing functionality** - No features should be removed
