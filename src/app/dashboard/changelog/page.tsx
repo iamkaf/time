@@ -7,10 +7,10 @@ export const metadata: Metadata = {
 
 const changelog = [
   {
-    version: 'Unreleased',
-    date: '',
+    version: '0.2.0',
+    date: '2025-07-31',
     title: 'Major Session Management & Analytics Update',
-    type: 'unreleased',
+    type: 'release',
     sections: {
       added: [
         'Complete user preferences system in Settings page with time format (12h/24h), start of week (Sunday/Monday), and default tags',

@@ -5,7 +5,7 @@ All notable changes to the TIME app will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - Major Session Management & Analytics Update
+## [0.2.0] - Major Session Management & Analytics Update
 
 ### Added
 - Complete user preferences system in Settings page with time format (12h/24h), start of week (Sunday/Monday), and default tags
